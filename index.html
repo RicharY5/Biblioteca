@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mi Biblioteca</title>
+    <style>
+        /* ESTILO (DARK MODE) */
+        body {
+            background-color: #141414;
+            color: white;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 0;
+            padding: 20px;
+        }
+
+        h1 { color: #E50914; text-align: center; }
+
+        .contenedor-peliculas {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            gap: 20px;
+            padding: 20px;
+        }
+
+        .pelicula-card {
+            background: #222;
+            border-radius: 8px;
+            overflow: hidden;
+            transition: transform 0.3s;
+            cursor: pointer;
+        }
+
+        .pelicula-card:hover { transform: scale(1.05); }
+
+        .pelicula-card img { width: 100%; display: block; }
+
+        .info { padding: 10px; font-size: 14px; }
+
+        /* REPRODUCTOR */
+        #reproductor-seccion {
+            display: none;
+            position: fixed;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
+            background: rgba(0,0,0,0.95);
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            z-index: 100;
+        }
+
+        iframe { border: none; width: 80%; height: 70%; border-radius: 10px; }
+
+        .btn-cerrar {
+            margin-bottom: 20px;
+            padding: 10px 20px;
+            background: #E50914;
+            color: white;
+            border: none;
+            cursor: pointer;
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+
+    <h1>MI BIBLIOTECA</h1>
+
+    <div class="contenedor-peliculas" id="catalogo">
+        </div>
+
+    <div id="reproductor-seccion">
+        <button class="btn-cerrar" onclick="cerrarPlayer()">CERRAR</button>
+        <iframe id="video-frame" src="" allow="autoplay" allowfullscreen></iframe>
+        <h2 id="video-titulo"></h2>
+    </div>
+
+    <script>
+        // 1. CONFIGURACIÓN: Tu lista de películas
+        // tmdbId: Lo sacas de la URL de themoviedb.org
+        // driveId: Es el código largo que sale al compartir tu archivo de video en Drive
+        const misPeliculas = [
+            { tmdbId: '157336', driveId: '1pXaU5H5R0VE1kFgwmfxy6nppUnljRFKp' }, // Interstellar (Ejemplo)
+            { tmdbId: '14003',  driveId: '1hazOoid5bJP8zMPKFcBSvQKUqOPlknen' }, // fullmetal
+            { tmdbId: '671',    driveId: 'ID_DE_OTRO_ARCHIVO' }  // Harry Potter
+        ];
+
+        const API_KEY = '8f27622d17ef41400d3a5e11475c4048'; // Llave de ejemplo (Cámbiala por la tuya)
+        const catalogo = document.getElementById('catalogo');
+
+        // 2. FUNCIÓN PARA BUSCAR INFO EN LA API Y MOSTRARLAS
+        async function cargarCatalogo() {
+            for (let peli of misPeliculas) {
+                const response = await fetch(`https://api.themoviedb.org/3/movie/${peli.tmdbId}?api_key=${API_KEY}&language=es-ES`);
+                const data = await response.json();
+
+                const card = document.createElement('div');
+                card.className = 'pelicula-card';
+                card.innerHTML = `
+                    <img src="https://image.tmdb.org/t/p/w500${data.poster_path}" alt="${data.title}">
+                    <div class="info">
+                        <strong>${data.title}</strong><br>
+                        <span>${data.release_date.split('-')[0]}</span>
+                    </div>
+                `;
+                
+                card.onclick = () => abrirPlayer(peli.driveId, data.title);
+                catalogo.appendChild(card);
+            }
+        }
+
+        // 3. FUNCIONES DEL REPRODUCTOR
+        function abrirPlayer(idDrive, titulo) {
+            const player = document.getElementById('reproductor-seccion');
+            const frame = document.getElementById('video-frame');
+            document.getElementById('video-titulo').innerText = titulo;
+            
+            // Convertimos el link de Drive en formato Reproductor
+            frame.src = `https://drive.google.com/file/d/${idDrive}/preview`;
+            player.style.display = 'flex';
+        }
+
+        function cerrarPlayer() {
+            const player = document.getElementById('reproductor-seccion');
+            const frame = document.getElementById('video-frame');
+            frame.src = ""; // Detiene el video al cerrar
+            player.style.display = 'none';
+        }
+
+        cargarCatalogo();
+    </script>
+</body>
+</html>
