@@ -7,28 +7,33 @@
     <meta name="mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-    <link rel="manifest" href="data:application/manifest+json,{'name':'MiCinePremium','display':'standalone','orientation':'any'}">
+    <link rel="manifest" href="data:application/manifest+json,{'name':'MiCinePremium','display':'standalone'}">
 
     <title>Mi Cine Premium</title>
     <style>
-        :root { --primary: #ffffff; --secondary: #a855f7; --black: #000; }
+        :root { --secondary: #a855f7; --aura: rgba(168, 85, 247, 0.15); }
         * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; margin: 0; padding: 0; }
         
         body { 
-            background: var(--black); color: white; font-family: 'Segoe UI', sans-serif; 
+            background: #000; color: white; font-family: 'Segoe UI', sans-serif; 
             overflow: hidden; width: 100vw; height: 100vh;
         }
 
-        /* VIDEO DE FONDO - NOMBRE CORREGIDO */
+        /* FONDO BIBLIOTECA + AURA MORADA */
         #bg-video-main {
             position: fixed; inset: 0; width: 100%; height: 100%; 
-            z-index: -2; object-fit: cover; filter: brightness(0.25);
+            z-index: -2; object-fit: cover; filter: brightness(0.3);
+        }
+        .aura-overlay {
+            position: fixed; inset: 0; z-index: -1;
+            background: radial-gradient(circle at center, var(--aura) 0%, transparent 70%);
+            pointer-events: none;
         }
 
         /* HEADER */
         .header { 
             position: fixed; top: 0; width: 100%; height: 75px; padding: 0 5%; 
-            background: rgba(0,0,0,0.85); backdrop-filter: blur(15px);
+            background: rgba(0,0,0,0.8); backdrop-filter: blur(15px);
             z-index: 1000; display: flex; align-items: center; justify-content: space-between;
             border-bottom: 2px solid var(--secondary);
         }
@@ -47,72 +52,53 @@
 
         .card-container { position: relative; width: 100%; height: 280px; }
 
-        /* CARTAS SIN LÍNEA NEGRA */
         .card { 
             position: absolute; width: 100%; height: 100%; background: #050505; border-radius: 12px; 
             transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275); cursor: pointer; z-index: 10; 
             border: 1px solid #222; overflow: hidden; display: flex; flex-direction: column;
         }
+        .card:hover { transform: scale(1.4); z-index: 5000; border-color: var(--secondary); box-shadow: 0 0 20px var(--aura); }
 
-        .card:hover { transform: scale(1.4); z-index: 5000; border-color: var(--secondary); }
-
-        .card img, .card-video-prev { 
-            width: 100%; height: 210px; object-fit: cover; 
-            display: block; border: none;
-        }
-        
+        .card img, .card-video-prev { width: 100%; height: 210px; object-fit: cover; display: block; border: none; }
         .card-video-prev { position: absolute; top: 0; left: 0; opacity: 0; transition: 0.3s; z-index: 2; pointer-events: none; }
         .card:hover .card-video-prev { opacity: 1; }
 
-        .card-body { 
-            padding: 10px; background: #050505; flex-grow: 1; 
-            margin-top: -1px; /* Solapamiento para eliminar línea */
-        }
+        .card-body { padding: 10px; background: #050505; flex-grow: 1; margin-top: -1px; }
         .card-body b { font-size: 10px; color: var(--secondary); text-transform: uppercase; }
         .card-body p { margin: 4px 0 0; font-size: 13px; font-weight: bold; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 
-        /* PANTALLA INFO */
-        .pantalla-full { display: none; position: fixed; inset: 0; background: #000; z-index: 6000; overflow-y: auto; }
-        .hero-info { width: 100%; height: 40vh; position: relative; border-bottom: 2px solid var(--secondary); }
-        .hero-info video { width: 100%; height: 100%; object-fit: cover; }
-        .info-content { padding: 30px 8%; }
-        .category-box { border-left: 4px solid var(--secondary); padding-left: 15px; margin: 20px 0; color: #bbb; font-size: 14px; }
-
-        /* REPRODUCTOR CENTRADO SIN DESPLAZAMIENTOS */
+        /* REPRODUCTOR - FIX ORIENTACIÓN */
         #pantalla-player { 
             display: none; position: fixed; inset: 0; background: #000; 
-            z-index: 8000; flex-direction: column; align-items: center; justify-content: center;
+            z-index: 8000; flex-direction: column;
         }
-        .video-viewport { 
-            width: 100%; flex-grow: 1; position: relative; 
-            display: flex; align-items: center; justify-content: center;
-            background: #000;
-        }
+        .video-viewport { width: 100%; flex-grow: 1; background: #000; display: flex; align-items: center; justify-content: center; }
         iframe { width: 100%; height: 100%; border: none; }
 
-        /* BOTONES AJUSTADOS PARA TELÉFONO */
         .footer-player { 
-            width: 100%; height: 90px; background: #0a0a0a; border-top: 2px solid var(--secondary); 
-            display: flex; align-items: center; justify-content: space-between; 
-            padding: 0 25px 15px 25px; z-index: 8005;
+            width: 100%; height: auto; min-height: 80px; background: #0a0a0a; border-top: 2px solid var(--secondary); 
+            display: flex; align-items: center; justify-content: space-around; 
+            padding: 10px 20px env(safe-area-inset-bottom); z-index: 8005;
         }
 
-        .btn-ui { background: var(--secondary); color: white; border: none; padding: 12px 18px; border-radius: 10px; font-weight: 800; cursor: pointer; font-size: 14px; }
+        .btn-ui { background: var(--secondary); color: white; border: none; padding: 12px 20px; border-radius: 10px; font-weight: 800; cursor: pointer; font-size: 14px; white-space: nowrap; }
 
         #menu-episodios { 
-            position: fixed; right: 0; top: 0; bottom: 90px; width: 280px; 
-            background: rgba(10,10,10,0.98); border-left: 2px solid var(--secondary); 
+            position: fixed; right: 0; top: 0; bottom: 85px; width: 280px; 
+            background: rgba(5,5,5,0.95); border-left: 2px solid var(--secondary); 
             z-index: 9000; padding: 20px; display: none; overflow-y: auto; 
         }
-        .ep-item { padding: 15px; border-bottom: 1px solid #222; cursor: pointer; font-size: 14px; }
+        .ep-item { padding: 15px; border-bottom: 1px solid #222; cursor: pointer; font-size: 13px; }
         .ep-item.active { background: var(--secondary); color: white; }
+
+        .pantalla-full { display: none; position: fixed; inset: 0; background: #000; z-index: 6000; overflow-y: auto; }
+        .category-box { border-left: 4px solid var(--secondary); padding-left: 15px; margin: 20px 0; color: #bbb; font-size: 14px; }
     </style>
 </head>
 <body>
 
-    <video autoplay muted loop playsinline id="bg-video-main">
-        <source src="Biblioteca.mp4" type="video/mp4">
-    </video>
+    <video autoplay muted loop playsinline id="bg-video-main"><source src="Biblioteca.mp4" type="video/mp4"></video>
+    <div class="aura-overlay"></div>
 
     <div id="home">
         <div class="header">
@@ -123,12 +109,11 @@
     </div>
 
     <div id="pantalla-info" class="pantalla-full">
-        <div class="hero-info" id="hero-cont"></div>
-        <div class="info-content">
-            <h1 id="info-titulo" style="font-size: 2.5rem; margin:0;"></h1>
-            <div id="info-tags" style="color:var(--secondary); font-weight:bold; margin:10px 0;"></div>
+        <div style="height:40vh; border-bottom: 2px solid var(--secondary);" id="hero-cont"></div>
+        <div style="padding: 30px 8%;">
+            <h1 id="info-titulo" style="font-size: 2.2rem;"></h1>
             <div id="info-cats" class="category-box"></div>
-            <p id="info-desc" style="color: #eee; line-height: 1.8; margin-bottom: 30px;"></p>
+            <p id="info-desc" style="color:#eee; line-height:1.6; margin-bottom:30px;"></p>
             <div style="display:flex; gap:15px;">
                 <button class="btn-ui" onclick="abrirPlayer()" style="flex:2;">▶ REPRODUCIR</button>
                 <button class="btn-ui" onclick="cerrarInfo()" style="flex:1; background:#222;">VOLVER</button>
@@ -140,7 +125,7 @@
         <div class="video-viewport"><iframe id="main-iframe" allowfullscreen></iframe></div>
         <div class="footer-player">
             <button class="btn-ui" onclick="cerrarPlayer()" style="background:#222;">✕ SALIR</button>
-            <span id="ep-nombre-ui" style="font-size:11px; color:#888; font-weight:bold; flex:1; text-align:center;"></span>
+            <span id="ep-nombre-ui" style="font-size:11px; color:#888; font-weight:bold; padding: 0 10px; text-align:center;"></span>
             <button class="btn-ui" onclick="toggleEps()">EPISODIOS ☰</button>
         </div>
         <div id="menu-episodios"><div id="lista-eps"></div></div>
@@ -148,10 +133,30 @@
 
     <script>
         const API_KEY = '6de1162b511f00bd38d39d7eb38396e9';
+        
+        // --- BASE DE DATOS AMPLIADA ---
         const contenido = [
-            { id: '37863', tipo: 'tv', trailer: 'https://vjs.zencdn.net/v/oceans.mp4', episodios: [{ n: 'Fullmetal Ep 1', d: '1H05vvUGWykQ6tnuApYV6EOEREVf4Kkqa' }, { n: 'Fullmetal Ep 2', d: '1Dqj5yyS1hoU42x6KqCNEdnYvCYsaGfY2' }] },
-            { id: '76479', tipo: 'tv', trailer: 'https://vjs.zencdn.net/v/oceans.mp4', episodios: [{ n: 'The Boys Ep 1', d: '1Dqj5yyS1hoU42x6KqCNEdnYvCYsaGfY2' }] },
-            { id: '533535', tipo: 'movie', trailer: 'https://vjs.zencdn.net/v/oceans.mp4', episodios: [{ n: 'Deadpool & Wolverine', d: '1H05vvUGWykQ6tnuApYV6EOEREVf4Kkqa' }] }
+            { 
+                id: '37863', tipo: 'tv', trailer: 'https://vjs.zencdn.net/v/oceans.mp4', 
+                episodios: Array.from({length: 51}, (_, i) => ({ n: `FMA Brotherhood - Cap ${i+1}`, d: '1H05vvUGWykQ6tnuApYV6EOEREVf4Kkqa' })) 
+            },
+            { 
+                id: '37863', tipo: 'movie', trailer: 'https://vjs.zencdn.net/v/oceans.mp4', 
+                titulo_alt: "Películas FMA",
+                episodios: Array.from({length: 6}, (_, i) => ({ n: `FMA Película ${i+1}`, d: '1Dqj5yyS1hoU42x6KqCNEdnYvCYsaGfY2' })) 
+            },
+            { 
+                id: '76479', tipo: 'tv', trailer: 'https://vjs.zencdn.net/v/oceans.mp4', 
+                episodios: Array.from({length: 61}, (_, i) => ({ n: `The Boys - Cap ${i+1}`, d: '1Dqj5yyS1hoU42x6KqCNEdnYvCYsaGfY2' })) 
+            },
+            { 
+                id: '1399', tipo: 'tv', trailer: 'https://vjs.zencdn.net/v/oceans.mp4', 
+                episodios: Array.from({length: 6}, (_, i) => ({ n: `Serie 6 Caps - Cap ${i+1}`, d: '1H05vvUGWykQ6tnuApYV6EOEREVf4Kkqa' })) 
+            },
+            { 
+                id: '60625', tipo: 'tv', trailer: 'https://vjs.zencdn.net/v/oceans.mp4', 
+                episodios: Array.from({length: 3}, (_, i) => ({ n: `Serie 3 Caps - Cap ${i+1}`, d: '1Dqj5yyS1hoU42x6KqCNEdnYvCYsaGfY2' })) 
+            }
         ];
 
         let itemActual = null;
@@ -161,15 +166,13 @@
             for (let item of contenido) {
                 const res = await fetch(`https://api.themoviedb.org/3/${item.tipo}/${item.id}?api_key=${API_KEY}&language=es-ES`);
                 const data = await res.json();
-                const anio = (data.release_date || data.first_air_date || "2024").split('-')[0];
                 const div = document.createElement('div');
                 div.className = 'card-container';
-                div.innerHTML = `
-                    <div class="card" onclick='abrirInfo(${JSON.stringify({...item, data})})'>
-                        <video class="card-video-prev" src="${item.trailer}" muted loop playsinline></video>
-                        <img src="https://image.tmdb.org/t/p/w500${data.poster_path}">
-                        <div class="card-body"><b>${anio} • PREMIUM UHD</b><p>${data.name || data.title}</p></div>
-                    </div>`;
+                div.innerHTML = `<div class="card" onclick='abrirInfo(${JSON.stringify({...item, data})})'>
+                    <video class="card-video-prev" src="${item.trailer}" muted loop playsinline></video>
+                    <img src="https://image.tmdb.org/t/p/w500${data.poster_path}">
+                    <div class="card-body"><b>${item.episodios.length} ELEMENTOS</b><p>${item.titulo_alt || data.name || data.title}</p></div>
+                </div>`;
                 lista.appendChild(div);
                 const card = div.querySelector('.card'), video = div.querySelector('video');
                 card.onmouseenter = () => video.play(); card.onmouseleave = () => { video.pause(); video.currentTime = 0; };
@@ -179,11 +182,10 @@
         function abrirInfo(obj) {
             itemActual = obj;
             document.getElementById('pantalla-info').style.display = 'block';
-            document.getElementById('info-titulo').innerText = obj.data.name || obj.data.title;
+            document.getElementById('info-titulo').innerText = obj.titulo_alt || obj.data.name || obj.data.title;
             document.getElementById('info-desc').innerText = obj.data.overview;
-            document.getElementById('info-tags').innerText = `⭐ ${obj.data.vote_average.toFixed(1)} / 10`;
             document.getElementById('info-cats').innerHTML = "<b>GÉNEROS:</b> " + obj.data.genres.map(g => g.name).join(' / ');
-            document.getElementById('hero-cont').innerHTML = `<video src="${obj.trailer}" autoplay muted loop playsinline></video>`;
+            document.getElementById('hero-cont').innerHTML = `<video src="${obj.trailer}" autoplay muted loop playsinline style="width:100%;height:100%;object-fit:cover;"></video>`;
         }
 
         function abrirPlayer() { document.getElementById('pantalla-player').style.display = 'flex'; reproducir(0); }
@@ -199,7 +201,7 @@
         }
 
         function toggleEps() { const m = document.getElementById('menu-episodios'); m.style.display = m.style.display === 'block' ? 'none' : 'block'; }
-        function cerrarInfo() { document.getElementById('pantalla-info').style.display = 'none'; document.getElementById('hero-cont').innerHTML = ''; }
+        function cerrarInfo() { document.getElementById('pantalla-info').style.display = 'none'; }
         function cerrarPlayer() { document.getElementById('pantalla-player').style.display = 'none'; document.getElementById('main-iframe').src = ''; }
         function filtrar() {
             const q = document.querySelector('.search-box').value.toLowerCase();
