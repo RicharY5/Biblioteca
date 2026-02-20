@@ -3,70 +3,111 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <link rel="manifest" href="data:application/manifest+json,{'name':'MiCinePremium','display':'standalone'}">
+
     <title>Mi Cine Premium</title>
     <style>
-        :root { --secondary: #a855f7; --aura: rgba(168, 85, 247, 0.2); }
+        :root { --secondary: #a855f7; --aura: rgba(168, 85, 247, 0.25); }
         * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; margin: 0; padding: 0; }
         
-        body { background: #000; color: white; font-family: 'Segoe UI', sans-serif; overflow: hidden; width: 100vw; height: 100vh; }
-
-        /* FONDO BIBLIOTECA */
-        #bg-video-main { position: fixed; inset: 0; width: 100%; height: 100%; z-index: -2; object-fit: cover; filter: brightness(0.3); }
-        .aura-overlay { position: fixed; inset: 0; z-index: -1; background: radial-gradient(circle at center, var(--aura) 0%, transparent 75%); pointer-events: none; }
-
-        /* HEADER OSCURO */
-        .header { 
-            position: fixed; top: 0; width: 100%; height: 80px; padding: 0 5%; 
-            background: rgba(0,0,0,0.85); backdrop-filter: blur(15px); z-index: 1000; 
-            display: flex; align-items: center; justify-content: space-between; border-bottom: 2px solid var(--secondary); 
+        body { 
+            background: #000; color: white; font-family: 'Segoe UI', sans-serif; 
+            overflow: hidden; width: 100vw; height: 100vh;
         }
-        .search-box { 
-            background: rgba(255,255,255,0.05); border: 1px solid var(--secondary); 
-            border-radius: 8px; padding: 10px 15px; color: white; outline: none; width: 50%; 
+
+        /* FONDO BIBLIOTECA + AURA MORADA */
+        #bg-video-main {
+            position: fixed; inset: 0; width: 100%; height: 100%; 
+            z-index: -2; object-fit: cover; filter: brightness(0.3);
+        }
+        .aura-overlay {
+            position: fixed; inset: 0; z-index: -1;
+            background: radial-gradient(circle at center, var(--aura) 0%, transparent 70%);
+            pointer-events: none;
+        }
+
+        /* HEADER */
+        .header { 
+            position: fixed; top: 0; width: 100%; height: 75px; padding: 0 5%; 
+            background: rgba(0,0,0,0.8); backdrop-filter: blur(15px);
+            z-index: 1000; display: flex; align-items: center; justify-content: space-between;
+            border-bottom: 2px solid var(--secondary);
+        }
+
+        .search-box {
+            background: rgba(255,255,255,0.1); border: 1px solid var(--secondary);
+            border-radius: 8px; padding: 8px 15px; color: white; outline: none; width: 45%;
         }
 
         /* CATALOGO */
         .contenedor { 
             display: grid; grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); 
-            gap: 30px; padding: 110px 5% 150px; overflow-y: auto; height: 100vh; 
+            gap: 60px 20px; padding: 110px 5% 120px; 
+            overflow-y: auto; height: 100vh;
+            overflow-x: hidden;
         }
-        .card-container { width: 100%; }
+
+        .card-container { position: relative; width: 100%; height: 280px; }
+
         .card { 
-            background: #050505; border-radius: 12px; transition: transform 0.3s ease; 
-            cursor: pointer; border: 1px solid #222; overflow: hidden; position: relative;
+            position: absolute; width: 100%; height: 100%; background: #050505; border-radius: 12px; 
+            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275); cursor: pointer; z-index: 10; 
+            border: 1px solid #222; overflow: hidden; display: flex; flex-direction: column;
+            transform-origin: center;
         }
-        .card:hover { transform: scale(1.1); z-index: 10; border-color: var(--secondary); }
-        .card img { width: 100%; aspect-ratio: 2/3; object-fit: cover; display: block; }
-        .card-body { padding: 10px; background: #050505; }
+        .card:hover { transform: scale(1.12); z-index: 5000; border-color: var(--secondary); box-shadow: 0 0 20px var(--aura); }
+
+        .card img, .card-video-prev { width: 100%; height: 210px; object-fit: cover; display: block; border: none; }
+        .card-video-prev { position: absolute; top: 0; left: 0; opacity: 0; transition: 0.3s; z-index: 2; pointer-events: none; }
+        .card:hover .card-video-prev { opacity: 1; }
+
+        .card-body { padding: 10px; background: #050505; flex-grow: 1; margin-top: -1px; }
         .card-body b { font-size: 10px; color: var(--secondary); text-transform: uppercase; }
-        .card-body p { font-size: 13px; font-weight: bold; margin-top: 4px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        .card-body p { margin: 4px 0 0; font-size: 13px; font-weight: bold; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 
-        /* INFO CON VIDEO */
-        .pantalla-full { display: none; position: fixed; inset: 0; background: #000; z-index: 6000; overflow-y: auto; }
-        .genre-pill { background: rgba(168, 85, 247, 0.2); border: 1px solid var(--secondary); padding: 5px 12px; border-radius: 20px; font-size: 12px; display: inline-block; margin-right: 5px; }
-
-        /* REPRODUCTOR FIX BOTONES SALIDOS */
-        #pantalla-player { display: none; position: fixed; inset: 0; background: #000; z-index: 8000; flex-direction: column; }
-        .video-viewport { flex-grow: 1; display: flex; align-items: center; justify-content: center; background: #000; }
+        /* REPRODUCTOR */
+        #pantalla-player { 
+            display: none; position: fixed; inset: 0; background: #000; 
+            z-index: 8000; flex-direction: column;
+        }
+        .video-viewport { width: 100%; flex-grow: 1; background: #000; display: flex; align-items: center; justify-content: center; position: relative; }
         iframe { width: 100%; height: 100%; border: none; }
 
         .footer-player { 
-            width: 100%; height: 100px; background: #0a0a0a; border-top: 2px solid var(--secondary); 
+            width: 100%; height: auto; min-height: 85px; background: #0a0a0a; border-top: 2px solid var(--secondary); 
             display: flex; align-items: center; justify-content: space-between; 
-            /* Empujamos los botones hacia el centro para que no los tape la cámara/notch */
-            padding: 0 60px calc(10px + env(safe-area-inset-bottom)); 
-            z-index: 9999;
+            padding: 10px 50px calc(10px + env(safe-area-inset-bottom)); z-index: 8005;
         }
 
-        .btn-ui { background: var(--secondary); color: white; border: none; padding: 12px 20px; border-radius: 10px; font-weight: 800; cursor: pointer; }
+        .btn-ui { background: var(--secondary); color: white; border: none; padding: 12px 20px; border-radius: 10px; font-weight: 800; cursor: pointer; font-size: 14px; }
 
+        /* MENU EPISODIOS MEJORADO */
         #menu-episodios { 
-            position: fixed; right: 20px; bottom: 110px; width: 280px; max-height: 60vh;
-            background: rgba(10,10,10,0.95); border: 1px solid var(--secondary); 
-            z-index: 9000; padding: 15px; display: none; overflow-y: auto; border-radius: 10px;
+            position: fixed; right: 10px; top: 10px; bottom: 100px; width: 280px; 
+            background: rgba(10,10,10,0.9); backdrop-filter: blur(10px);
+            border: 1px solid var(--secondary); border-radius: 15px;
+            z-index: 9000; padding: 15px; display: none; overflow-y: auto; 
+            box-shadow: -10px 0 30px rgba(0,0,0,0.5);
         }
-        .ep-item { padding: 12px; border-bottom: 1px solid #222; cursor: pointer; font-size: 13px; }
-        .ep-item.active { background: var(--secondary); color: white; }
+        .ep-item { 
+            padding: 12px; border-radius: 8px; margin-bottom: 5px;
+            cursor: pointer; font-size: 13px; transition: 0.2s; border-bottom: 1px solid #222;
+        }
+        .ep-item:hover { background: rgba(168, 85, 247, 0.1); }
+        .ep-item.active { background: var(--secondary); color: white; font-weight: bold; }
+
+        .pantalla-full { display: none; position: fixed; inset: 0; background: #000; z-index: 6000; overflow-y: auto; }
+        
+        /* CATEGORIAS DISEÑO */
+        .cat-tag {
+            display: inline-block; background: rgba(168, 85, 247, 0.2);
+            color: #d8b4fe; padding: 4px 12px; border-radius: 20px;
+            margin: 5px 5px 5px 0; font-size: 12px; border: 1px solid rgba(168, 85, 247, 0.4);
+        }
     </style>
 </head>
 <body>
@@ -77,17 +118,17 @@
     <div id="home">
         <div class="header">
             <h1>MI <span>CINE</span></h1>
-            <input type="text" class="search-box" placeholder="Buscar película o serie..." onkeyup="filtrar()">
+            <input type="text" class="search-box" placeholder="Buscar..." onkeyup="filtrar()">
         </div>
         <div class="contenedor" id="catalogo"></div>
     </div>
 
     <div id="pantalla-info" class="pantalla-full">
-        <div style="height:45vh; border-bottom: 2px solid var(--secondary);" id="hero-cont"></div>
+        <div style="height:40vh; border-bottom: 2px solid var(--secondary);" id="hero-cont"></div>
         <div style="padding: 30px 8%;">
-            <h1 id="info-titulo" style="font-size: 2.5rem;"></h1>
+            <h1 id="info-titulo" style="font-size: 2.2rem;"></h1>
             <div id="info-cats" style="margin: 15px 0;"></div>
-            <p id="info-desc" style="color:#ccc; line-height:1.7; margin-bottom:30px;"></p>
+            <p id="info-desc" style="color:#eee; line-height:1.6; margin-bottom:30px;"></p>
             <div style="display:flex; gap:15px;">
                 <button class="btn-ui" onclick="abrirPlayer()" style="flex:2;">▶ REPRODUCIR</button>
                 <button class="btn-ui" onclick="cerrarInfo()" style="flex:1; background:#222;">VOLVER</button>
@@ -99,7 +140,7 @@
         <div class="video-viewport"><iframe id="main-iframe" allowfullscreen></iframe></div>
         <div class="footer-player">
             <button class="btn-ui" onclick="cerrarPlayer()" style="background:#222;">✕ SALIR</button>
-            <span id="ep-nombre-ui" style="font-size:11px; color:#888; font-weight:bold; flex:1; text-align:center;"></span>
+            <span id="ep-nombre-ui" style="font-size:11px; color:#888; font-weight:bold; padding: 0 10px; text-align:center;"></span>
             <button class="btn-ui" onclick="toggleEps()">EPISODIOS ☰</button>
         </div>
         <div id="menu-episodios"><div id="lista-eps"></div></div>
@@ -108,16 +149,17 @@
     <script>
         const API_KEY = '6de1162b511f00bd38d39d7eb38396e9';
         
-        // --- BASE DE DATOS RESTAURADA ---
         const contenido = [
-            { id: '37863', tipo: 'tv', label: 'Episodios', trailer: 'https://vjs.zencdn.net/v/oceans.mp4', episodios: Array.from({length: 51}, (_, i) => ({ n: `FMA - Cap ${i+1}`, d: '1H05vvUGWykQ6tnuApYV6EOEREVf4Kkqa' })) },
-            { id: '671', tipo: 'movie', label: 'Película', trailer: 'https://vjs.zencdn.net/v/oceans.mp4', episodios: [{n: 'Harry Potter 1', d: '1Dqj5yyS1hoU42x6KqCNEdnYvCYsaGfY2'}] },
-            { id: '672', tipo: 'movie', label: 'Película', trailer: 'https://vjs.zencdn.net/v/oceans.mp4', episodios: [{n: 'Harry Potter 2', d: '1Dqj5yyS1hoU42x6KqCNEdnYvCYsaGfY2'}] },
-            { id: '120', tipo: 'movie', label: 'Película', trailer: 'https://vjs.zencdn.net/v/oceans.mp4', episodios: [{n: 'El Señor de los Anillos', d: '1Dqj5yyS1hoU42x6KqCNEdnYvCYsaGfY2'}] },
-            { id: '155', tipo: 'movie', label: 'Película', trailer: 'https://vjs.zencdn.net/v/oceans.mp4', episodios: [{n: 'Batman', d: '1Dqj5yyS1hoU42x6KqCNEdnYvCYsaGfY2'}] },
-            { id: '19995', tipo: 'movie', label: 'Película', trailer: 'https://vjs.zencdn.net/v/oceans.mp4', episodios: [{n: 'Avatar', d: '1Dqj5yyS1hoU42x6KqCNEdnYvCYsaGfY2'}] },
-            { id: '76479', tipo: 'tv', label: 'Episodios', trailer: 'https://vjs.zencdn.net/v/oceans.mp4', episodios: Array.from({length: 61}, (_, i) => ({ n: `The Boys - Cap ${i+1}`, d: '1Dqj5yyS1hoU42x6KqCNEdnYvCYsaGfY2' })) },
-            { id: '60625', tipo: 'tv', label: 'Partes', trailer: 'https://vjs.zencdn.net/v/oceans.mp4', episodios: Array.from({length: 3}, (_, i) => ({ n: `Rick y Morty - P${i+1}`, d: '1Dqj5yyS1hoU42x6KqCNEdnYvCYsaGfY2' })) }
+            { id: '37863', tipo: 'tv', trailer: 'https://vjs.zencdn.net/v/oceans.mp4', label: 'Episodios', episodios: Array.from({length: 51}, (_, i) => ({ n: `FMA Brotherhood - Cap ${i+1}`, d: '1H05vvUGWykQ6tnuApYV6EOEREVf4Kkqa' })) },
+            { id: '533535', tipo: 'movie', trailer: 'https://vjs.zencdn.net/v/oceans.mp4', label: 'Película', episodios: [{n: 'Película 1', d: '1Dqj5yyS1hoU42x6KqCNEdnYvCYsaGfY2'}] },
+            { id: '671', tipo: 'movie', trailer: 'https://vjs.zencdn.net/v/oceans.mp4', label: 'Película', episodios: [{n: 'Película 2', d: '1Dqj5yyS1hoU42x6KqCNEdnYvCYsaGfY2'}] },
+            { id: '672', tipo: 'movie', trailer: 'https://vjs.zencdn.net/v/oceans.mp4', label: 'Película', episodios: [{n: 'Película 3', d: '1Dqj5yyS1hoU42x6KqCNEdnYvCYsaGfY2'}] },
+            { id: '120', tipo: 'movie', trailer: 'https://vjs.zencdn.net/v/oceans.mp4', label: 'Película', episodios: [{n: 'Película 4', d: '1Dqj5yyS1hoU42x6KqCNEdnYvCYsaGfY2'}] },
+            { id: '155', tipo: 'movie', trailer: 'https://vjs.zencdn.net/v/oceans.mp4', label: 'Película', episodios: [{n: 'Película 5', d: '1Dqj5yyS1hoU42x6KqCNEdnYvCYsaGfY2'}] },
+            { id: '19995', tipo: 'movie', trailer: 'https://vjs.zencdn.net/v/oceans.mp4', label: 'Película', episodios: [{n: 'Película 6', d: '1Dqj5yyS1hoU42x6KqCNEdnYvCYsaGfY2'}] },
+            { id: '76479', tipo: 'tv', trailer: 'https://vjs.zencdn.net/v/oceans.mp4', label: 'Episodios', episodios: Array.from({length: 61}, (_, i) => ({ n: `The Boys - Cap ${i+1}`, d: '1Dqj5yyS1hoU42x6KqCNEdnYvCYsaGfY2' })) },
+            { id: '1399', tipo: 'tv', trailer: 'https://vjs.zencdn.net/v/oceans.mp4', label: 'Episodios', episodios: Array.from({length: 6}, (_, i) => ({ n: `Serie - Cap ${i+1}`, d: '1H05vvUGWykQ6tnuApYV6EOEREVf4Kkqa' })) },
+            { id: '60625', tipo: 'tv', trailer: 'https://vjs.zencdn.net/v/oceans.mp4', label: 'Partes', episodios: Array.from({length: 3}, (_, i) => ({ n: `Parte ${i+1}`, d: '1Dqj5yyS1hoU42x6KqCNEdnYvCYsaGfY2' })) }
         ];
 
         let itemActual = null;
@@ -130,10 +172,13 @@
                 const div = document.createElement('div');
                 div.className = 'card-container';
                 div.innerHTML = `<div class="card" onclick='abrirInfo(${JSON.stringify({...item, data})})'>
+                    <video class="card-video-prev" src="${item.trailer}" muted loop playsinline></video>
                     <img src="https://image.tmdb.org/t/p/w500${data.poster_path}">
                     <div class="card-body"><b>${item.episodios.length} ${item.label}</b><p>${data.name || data.title}</p></div>
                 </div>`;
                 lista.appendChild(div);
+                const card = div.querySelector('.card'), video = div.querySelector('video');
+                card.onmouseenter = () => video.play(); card.onmouseleave = () => { video.pause(); video.currentTime = 0; };
             }
         }
 
@@ -142,32 +187,31 @@
             document.getElementById('pantalla-info').style.display = 'block';
             document.getElementById('info-titulo').innerText = obj.data.name || obj.data.title;
             document.getElementById('info-desc').innerText = obj.data.overview;
-            document.getElementById('info-cats').innerHTML = obj.data.genres.map(g => `<span class="genre-pill">${g.name}</span>`).join('');
+            document.getElementById('info-cats').innerHTML = obj.data.genres.map(g => `<span class="cat-tag">${g.name}</span>`).join('');
             document.getElementById('hero-cont').innerHTML = `<video src="${obj.trailer}" autoplay muted loop playsinline style="width:100%;height:100%;object-fit:cover;"></video>`;
         }
 
         function abrirPlayer() { document.getElementById('pantalla-player').style.display = 'flex'; reproducir(0); }
-        
         function reproducir(idx) {
             const ep = itemActual.episodios[idx];
             document.getElementById('main-iframe').src = `https://drive.google.com/file/d/${ep.d}/preview`;
             document.getElementById('ep-nombre-ui').innerText = ep.n;
             const l = document.getElementById('lista-eps'); l.innerHTML = '';
             itemActual.episodios.forEach((e, i) => {
-                const d = document.createElement('div'); d.className = `ep-item ${i === idx ? 'active' : ''}`; d.innerText = e.n;
-                d.onclick = () => { reproducir(i); toggleEps(); }; l.appendChild(d);
+                const d = document.createElement('div'); 
+                d.className = `ep-item ${i === idx ? 'active' : ''}`; 
+                d.innerText = e.n;
+                d.onclick = () => { reproducir(i); toggleEps(); }; 
+                l.appendChild(d);
             });
         }
 
         function toggleEps() { const m = document.getElementById('menu-episodios'); m.style.display = m.style.display === 'block' ? 'none' : 'block'; }
-        function cerrarInfo() { document.getElementById('pantalla-info').style.display = 'none'; document.getElementById('hero-cont').innerHTML = ''; }
+        function cerrarInfo() { document.getElementById('pantalla-info').style.display = 'none'; }
         function cerrarPlayer() { document.getElementById('pantalla-player').style.display = 'none'; document.getElementById('main-iframe').src = ''; }
-        
         function filtrar() {
             const q = document.querySelector('.search-box').value.toLowerCase();
-            document.querySelectorAll('.card-container').forEach(c => {
-                c.style.display = c.innerText.toLowerCase().includes(q) ? 'block' : 'none';
-            });
+            document.querySelectorAll('.card-container').forEach(c => c.style.display = c.innerText.toLowerCase().includes(q) ? 'block' : 'none');
         }
         cargar();
     </script>
