@@ -8,12 +8,9 @@
         :root { --secondary: #a855f7; --aura: rgba(168, 85, 247, 0.4); }
         * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; margin: 0; padding: 0; }
         
-        body { 
-            background: #000; color: white; font-family: 'Segoe UI', sans-serif; 
-            overflow: hidden; width: 100vw; height: 100vh;
-        }
+        body { background: #000; color: white; font-family: 'Segoe UI', sans-serif; overflow: hidden; width: 100vw; height: 100vh; }
 
-        /* FONDO Y AURA */
+        /* FONDO Y AURA MORADA */
         #bg-video-main { position: fixed; inset: 0; width: 100%; height: 100%; z-index: -2; object-fit: cover; filter: brightness(0.3); }
         .aura-overlay { position: fixed; inset: 0; z-index: -1; background: radial-gradient(circle at center, var(--aura) 0%, transparent 75%); pointer-events: none; }
 
@@ -25,7 +22,7 @@
         }
         .search-box { background: rgba(255,255,255,0.1); border: 1px solid var(--secondary); border-radius: 8px; padding: 10px 15px; color: white; outline: none; width: 50%; }
 
-        /* CATALOGO: Portadas perfectas y Previsualización */
+        /* CATALOGO: DISEÑO ORIGINAL */
         .contenedor { 
             display: grid; grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); 
             gap: 60px 20px; padding: 110px 5% 120px; overflow-y: auto; height: 100vh; 
@@ -38,7 +35,6 @@
         }
         .card:hover { transform: scale(1.1); z-index: 5000; border-color: var(--secondary); box-shadow: 0 0 20px var(--aura); }
         
-        /* Imagen ajustada para no cortarse */
         .card img { width: 100%; height: 210px; object-fit: cover; display: block; }
         .card-video-prev { position: absolute; top: 0; left: 0; width: 100%; height: 210px; object-fit: cover; opacity: 0; transition: 0.3s; z-index: 2; pointer-events: none; }
         .card:hover .card-video-prev { opacity: 1; }
@@ -47,35 +43,34 @@
         .card-body b { font-size: 10px; color: var(--secondary); text-transform: uppercase; display: block; }
         .card-body p { font-size: 13px; font-weight: bold; margin-top: 4px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 
-        /* PANTALLA INFO */
-        .pantalla-full { display: none; position: fixed; inset: 0; background: #000; z-index: 6000; overflow-y: auto; }
-        .cat-tag { display: inline-block; background: rgba(168, 85, 247, 0.2); border: 1px solid var(--secondary); padding: 5px 12px; border-radius: 20px; font-size: 11px; margin: 5px 5px 5px 0; }
-
-        /* REPRODUCTOR FLOTANTE (PARA NO ROMPER EL GIRO) */
-        #pantalla-player { 
-            display: none; position: fixed; inset: 0; background: #000; z-index: 8000; 
-        }
+        /* REPRODUCTOR: BOTONES FLOTANTES ARRIBA PARA NO ESTORBAR */
+        #pantalla-player { display: none; position: fixed; inset: 0; background: #000; z-index: 8000; }
         .video-wrapper { width: 100%; height: 100%; position: relative; }
+        
+        /* Iframe con todos los permisos habilitados para que salga el botón de Google */
         iframe { width: 100%; height: 100%; border: none; }
 
-        /* Botonera flotante para no estorbar a Google */
-        .player-ui {
-            position: absolute; bottom: 20px; left: 50%; transform: translateX(-50%);
-            width: 90%; max-width: 500px; display: flex; gap: 10px;
-            background: rgba(0,0,0,0.7); padding: 12px; border-radius: 15px;
-            backdrop-filter: blur(10px); border: 1px solid var(--secondary);
-            z-index: 8010; transition: opacity 0.3s;
+        .btn-ui-player {
+            position: absolute; top: 20px; z-index: 8010;
+            background: rgba(0,0,0,0.6); color: white; border: 1px solid var(--secondary);
+            padding: 10px 18px; border-radius: 10px; font-weight: bold; cursor: pointer;
+            backdrop-filter: blur(5px);
         }
-        .btn-ui { background: var(--secondary); color: white; border: none; padding: 12px 20px; border-radius: 10px; font-weight: 800; cursor: pointer; flex: 1; font-size: 13px; }
+        .btn-close { left: 20px; }
+        .btn-list { right: 20px; }
 
-        /* EPISODIOS */
+        /* LISTA EPISODIOS */
         #menu-episodios { 
-            position: fixed; right: 20px; bottom: 100px; width: 280px; max-height: 50vh;
+            position: fixed; right: 20px; top: 80px; width: 280px; max-height: 50vh;
             background: rgba(10,10,10,0.95); border: 2px solid var(--secondary); border-radius: 15px;
             z-index: 9000; padding: 15px; display: none; overflow-y: auto;
         }
         .ep-item { padding: 12px; border-bottom: 1px solid #222; cursor: pointer; font-size: 13px; border-radius: 8px; }
         .ep-item.active { background: var(--secondary); color: white; }
+
+        /* PANTALLA INFO */
+        .pantalla-full { display: none; position: fixed; inset: 0; background: #000; z-index: 6000; overflow-y: auto; }
+        .btn-big { background: var(--secondary); color: white; border: none; padding: 15px; border-radius: 12px; width: 100%; font-weight: bold; margin-top: 10px; cursor: pointer; }
     </style>
 </head>
 <body>
@@ -85,7 +80,7 @@
 
     <div id="home">
         <div class="header">
-            <h1>MI <span style="color:var(--secondary)">CINE</span></h1>
+            <h1 style="font-size: 20px;">MI <span style="color:var(--secondary)">CINE</span></h1>
             <input type="text" class="search-box" placeholder="Buscar..." onkeyup="filtrar()">
         </div>
         <div class="contenedor" id="catalogo"></div>
@@ -93,63 +88,56 @@
 
     <div id="pantalla-info" class="pantalla-full">
         <div style="height:40vh; border-bottom: 2px solid var(--secondary);" id="hero-cont"></div>
-        <div style="padding: 30px 8%;">
-            <h1 id="info-titulo" style="font-size: 2.2rem;"></h1>
-            <div id="info-cats"></div>
-            <p id="info-desc" style="color:#eee; line-height:1.6; margin: 25px 0;"></p>
-            <div style="display:flex; gap:15px;">
-                <button class="btn-ui" onclick="abrirPlayer()">▶ REPRODUCIR</button>
-                <button class="btn-ui" onclick="cerrarInfo()" style="background:#222;">VOLVER</button>
-            </div>
+        <div style="padding: 25px 8%;">
+            <h1 id="info-titulo"></h1>
+            <p id="info-desc" style="color:#ccc; margin: 20px 0; line-height: 1.6;"></p>
+            <button class="btn-big" onclick="abrirPlayer()">▶ REPRODUCIR</button>
+            <button class="btn-big" onclick="cerrarInfo()" style="background:#222;">VOLVER</button>
         </div>
     </div>
 
     <div id="pantalla-player">
         <div class="video-wrapper">
-            <iframe id="main-iframe" allowfullscreen></iframe>
-            <div class="player-ui" id="player-controls">
-                <button class="btn-ui" onclick="cerrarPlayer()" style="background:#222;">✕ SALIR</button>
-                <button class="btn-ui" onclick="toggleEps()">EPISODIOS ☰</button>
-            </div>
+            <button class="btn-ui-player btn-close" onclick="cerrarPlayer()">✕ SALIR</button>
+            <button class="btn-ui-player btn-list" onclick="toggleEps()">EPISODIOS ☰</button>
+            <iframe id="main-iframe" allow="autoplay; fullscreen; picture-in-picture" allowfullscreen></iframe>
         </div>
         <div id="menu-episodios"><div id="lista-eps"></div></div>
     </div>
 
     <script>
         const API_KEY = '6de1162b511f00bd38d39d7eb38396e9';
-        
         const contenido = [
-            { id: '37863', tipo: 'tv', label: 'Episodios', t: 'https://vjs.zencdn.net/v/oceans.mp4', eps: Array.from({length: 51}, (_, i) => ({ n: `FMA - Cap ${i+1}`, d: '1H05vvUGWykQ6tnuApYV6EOEREVf4Kkqa' })) },
-            { id: '533535', tipo: 'movie', label: 'Película', t: 'https://vjs.zencdn.net/v/oceans.mp4', eps: [{n: 'Deadpool y Lobezno', d: '1Dqj5yyS1hoU42x6KqCNEdnYvCYsaGfY2'}] },
+            { id: '37863', tipo: 'tv', label: 'Episodios', t: 'https://vjs.zencdn.net/v/oceans.mp4', eps: Array.from({length: 51}, (_, i) => ({ n: `Capítulo ${i+1}`, d: '1H05vvUGWykQ6tnuApYV6EOEREVf4Kkqa' })) },
+            { id: '533535', tipo: 'movie', label: 'Película', t: 'https://vjs.zencdn.net/v/oceans.mp4', eps: [{n: 'Película', d: '1Dqj5yyS1hoU42x6KqCNEdnYvCYsaGfY2'}] },
             { id: '671', tipo: 'movie', label: 'Película', t: 'https://vjs.zencdn.net/v/oceans.mp4', eps: [{n: 'Harry Potter 1', d: '1Dqj5yyS1hoU42x6KqCNEdnYvCYsaGfY2'}] },
             { id: '672', tipo: 'movie', label: 'Película', t: 'https://vjs.zencdn.net/v/oceans.mp4', eps: [{n: 'Harry Potter 2', d: '1Dqj5yyS1hoU42x6KqCNEdnYvCYsaGfY2'}] },
-            { id: '120', tipo: 'movie', label: 'Película', t: 'https://vjs.zencdn.net/v/oceans.mp4', eps: [{n: 'El Señor de los Anillos', d: '1Dqj5yyS1hoU42x6KqCNEdnYvCYsaGfY2'}] },
-            { id: '155', tipo: 'movie', label: 'Película', t: 'https://vjs.zencdn.net/v/oceans.mp4', eps: [{n: 'Batman: Caballero Oscuro', d: '1Dqj5yyS1hoU42x6KqCNEdnYvCYsaGfY2'}] },
+            { id: '120', tipo: 'movie', label: 'Película', t: 'https://vjs.zencdn.net/v/oceans.mp4', eps: [{n: 'LOTR', d: '1Dqj5yyS1hoU42x6KqCNEdnYvCYsaGfY2'}] },
+            { id: '155', tipo: 'movie', label: 'Película', t: 'https://vjs.zencdn.net/v/oceans.mp4', eps: [{n: 'Batman', d: '1Dqj5yyS1hoU42x6KqCNEdnYvCYsaGfY2'}] },
             { id: '19995', tipo: 'movie', label: 'Película', t: 'https://vjs.zencdn.net/v/oceans.mp4', eps: [{n: 'Avatar', d: '1Dqj5yyS1hoU42x6KqCNEdnYvCYsaGfY2'}] },
             { id: '76479', tipo: 'tv', label: 'Episodios', t: 'https://vjs.zencdn.net/v/oceans.mp4', eps: Array.from({length: 61}, (_, i) => ({ n: `The Boys - Cap ${i+1}`, d: '1Dqj5yyS1hoU42x6KqCNEdnYvCYsaGfY2' })) },
-            { id: '1399', tipo: 'tv', label: 'Episodios', t: 'https://vjs.zencdn.net/v/oceans.mp4', eps: Array.from({length: 6}, (_, i) => ({ n: `Serie - Cap ${i+1}`, d: '1H05vvUGWykQ6tnuApYV6EOEREVf4Kkqa' })) },
+            { id: '1399', tipo: 'tv', label: 'Episodios', t: 'https://vjs.zencdn.net/v/oceans.mp4', eps: Array.from({length: 6}, (_, i) => ({ n: `GOT - Cap ${i+1}`, d: '1H05vvUGWykQ6tnuApYV6EOEREVf4Kkqa' })) },
             { id: '60625', tipo: 'tv', label: 'Partes', t: 'https://vjs.zencdn.net/v/oceans.mp4', eps: Array.from({length: 3}, (_, i) => ({ n: `Rick y Morty - P${i+1}`, d: '1Dqj5yyS1hoU42x6KqCNEdnYvCYsaGfY2' })) }
         ];
 
         let itemActual = null;
 
         async function cargar() {
-            const lista = document.getElementById('catalogo');
+            const catalogo = document.getElementById('catalogo');
             for (let item of contenido) {
                 const res = await fetch(`https://api.themoviedb.org/3/${item.tipo}/${item.id}?api_key=${API_KEY}&language=es-ES`);
                 const data = await res.json();
                 const div = document.createElement('div');
                 div.className = 'card-container';
-                div.innerHTML = `
-                    <div class="card">
-                        <video class="card-video-prev" src="${item.t}" muted loop playsinline></video>
-                        <img src="https://image.tmdb.org/t/p/w500${data.poster_path}">
-                        <div class="card-body"><b>${item.eps.length} ${item.label}</b><p>${data.name || data.title}</p></div>
-                    </div>`;
+                div.innerHTML = `<div class="card">
+                    <video class="card-video-prev" src="${item.t}" muted loop playsinline></video>
+                    <img src="https://image.tmdb.org/t/p/w500${data.poster_path}">
+                    <div class="card-body"><b>${item.eps.length} ${item.label}</b><p>${data.name || data.title}</p></div>
+                </div>`;
                 div.querySelector('.card').onclick = () => abrirInfo(item, data);
                 const card = div.querySelector('.card'), video = div.querySelector('video');
                 card.onmouseenter = () => video.play(); card.onmouseleave = () => { video.pause(); video.currentTime = 0; };
-                lista.appendChild(div);
+                catalogo.appendChild(div);
             }
         }
 
@@ -158,7 +146,6 @@
             document.getElementById('pantalla-info').style.display = 'block';
             document.getElementById('info-titulo').innerText = data.name || data.title;
             document.getElementById('info-desc').innerText = data.overview;
-            document.getElementById('info-cats').innerHTML = data.genres.map(g => `<span class="cat-tag">${g.name}</span>`).join('');
             document.getElementById('hero-cont').innerHTML = `<video src="${item.t}" autoplay muted loop playsinline style="width:100%;height:100%;object-fit:cover;"></video>`;
         }
 
@@ -167,10 +154,10 @@
         function reproducir(idx) {
             const ep = itemActual.eps[idx];
             document.getElementById('main-iframe').src = `https://drive.google.com/file/d/${ep.d}/preview`;
-            const l = document.getElementById('lista-eps'); l.innerHTML = '';
+            const lista = document.getElementById('lista-eps'); lista.innerHTML = '';
             itemActual.eps.forEach((e, i) => {
                 const d = document.createElement('div'); d.className = `ep-item ${i === idx ? 'active' : ''}`; d.innerText = e.n;
-                d.onclick = () => { reproducir(i); toggleEps(); }; l.appendChild(d);
+                d.onclick = () => { reproducir(i); toggleEps(); }; lista.appendChild(d);
             });
         }
 
