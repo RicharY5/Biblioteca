@@ -8,24 +8,24 @@
         :root { --secondary: #a855f7; --aura: rgba(168, 85, 247, 0.4); }
         * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; margin: 0; padding: 0; }
         
-        body { background: #000; color: white; font-family: 'Segoe UI', sans-serif; overflow: hidden; width: 100vw; height: 100vh; }
+        /* FIX: Fondo que cubre toda la pantalla sin dejar espacios en blanco */
+        body { background: #000; color: white; font-family: 'Segoe UI', sans-serif; min-height: 100vh; width: 100vw; overflow-x: hidden; }
 
-        /* FONDO Y AURA MORADA */
         #bg-video-main { position: fixed; inset: 0; width: 100%; height: 100%; z-index: -2; object-fit: cover; filter: brightness(0.3); }
         .aura-overlay { position: fixed; inset: 0; z-index: -1; background: radial-gradient(circle at center, var(--aura) 0%, transparent 75%); pointer-events: none; }
 
         /* HEADER */
         .header { 
-            position: fixed; top: 0; width: 100%; height: 75px; padding: 0 5%; 
+            position: sticky; top: 0; width: 100%; height: 75px; padding: 0 5%; 
             background: rgba(0,0,0,0.8); backdrop-filter: blur(15px); z-index: 1000; 
             display: flex; align-items: center; justify-content: space-between; border-bottom: 2px solid var(--secondary); 
         }
         .search-box { background: rgba(255,255,255,0.1); border: 1px solid var(--secondary); border-radius: 8px; padding: 10px 15px; color: white; outline: none; width: 50%; }
 
-        /* CATALOGO: DISEÑO ORIGINAL */
+        /* CATALOGO: Ajustado para llenar el espacio vacío */
         .contenedor { 
             display: grid; grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); 
-            gap: 60px 20px; padding: 110px 5% 120px; overflow-y: auto; height: 100vh; 
+            gap: 40px 20px; padding: 40px 5% 60px; min-height: calc(100vh - 75px); 
         }
         .card-container { width: 100%; height: 280px; position: relative; }
         .card { 
@@ -34,43 +34,41 @@
             border: 1px solid #222; overflow: hidden; display: flex; flex-direction: column;
         }
         .card:hover { transform: scale(1.1); z-index: 5000; border-color: var(--secondary); box-shadow: 0 0 20px var(--aura); }
-        
-        .card img { width: 100%; height: 210px; object-fit: cover; display: block; }
+        .card img { width: 100%; height: 210px; object-fit: cover; }
         .card-video-prev { position: absolute; top: 0; left: 0; width: 100%; height: 210px; object-fit: cover; opacity: 0; transition: 0.3s; z-index: 2; pointer-events: none; }
         .card:hover .card-video-prev { opacity: 1; }
-
         .card-body { padding: 10px; background: #050505; flex-grow: 1; }
-        .card-body b { font-size: 10px; color: var(--secondary); text-transform: uppercase; display: block; }
+        .card-body b { font-size: 10px; color: var(--secondary); text-transform: uppercase; }
         .card-body p { font-size: 13px; font-weight: bold; margin-top: 4px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 
-        /* REPRODUCTOR: BOTONES FLOTANTES ARRIBA PARA NO ESTORBAR */
+        /* REPRODUCTOR: BOTONES ARRIBA (Como pediste) */
         #pantalla-player { display: none; position: fixed; inset: 0; background: #000; z-index: 8000; }
-        .video-wrapper { width: 100%; height: 100%; position: relative; }
+        .video-wrapper { width: 100%; height: 100%; position: relative; display: flex; align-items: center; justify-content: center; }
         
-        /* Iframe con todos los permisos habilitados para que salga el botón de Google */
-        iframe { width: 100%; height: 100%; border: none; }
+        /* FIX: Iframe forzado a ocupar todo el espacio para que Google no esconda botones */
+        iframe { width: 100%; height: 100%; border: none; background: #000; }
 
         .btn-ui-player {
             position: absolute; top: 20px; z-index: 8010;
-            background: rgba(0,0,0,0.6); color: white; border: 1px solid var(--secondary);
-            padding: 10px 18px; border-radius: 10px; font-weight: bold; cursor: pointer;
+            background: rgba(0,0,0,0.8); color: white; border: 1.5px solid var(--secondary);
+            padding: 12px 20px; border-radius: 10px; font-weight: bold; cursor: pointer;
             backdrop-filter: blur(5px);
         }
         .btn-close { left: 20px; }
         .btn-list { right: 20px; }
 
-        /* LISTA EPISODIOS */
+        /* MENU EPISODIOS */
         #menu-episodios { 
-            position: fixed; right: 20px; top: 80px; width: 280px; max-height: 50vh;
-            background: rgba(10,10,10,0.95); border: 2px solid var(--secondary); border-radius: 15px;
-            z-index: 9000; padding: 15px; display: none; overflow-y: auto;
+            position: fixed; right: 20px; top: 85px; width: 280px; max-height: 65vh;
+            background: rgba(10,10,10,0.98); border: 2px solid var(--secondary); border-radius: 15px;
+            z-index: 9000; padding: 15px; display: none; overflow-y: auto; box-shadow: 0 10px 30px rgba(0,0,0,0.8);
         }
-        .ep-item { padding: 12px; border-bottom: 1px solid #222; cursor: pointer; font-size: 13px; border-radius: 8px; }
-        .ep-item.active { background: var(--secondary); color: white; }
+        .ep-item { padding: 14px; border-bottom: 1px solid #222; cursor: pointer; font-size: 14px; transition: 0.2s; }
+        .ep-item.active { background: var(--secondary); color: white; border-radius: 8px; }
 
         /* PANTALLA INFO */
         .pantalla-full { display: none; position: fixed; inset: 0; background: #000; z-index: 6000; overflow-y: auto; }
-        .btn-big { background: var(--secondary); color: white; border: none; padding: 15px; border-radius: 12px; width: 100%; font-weight: bold; margin-top: 10px; cursor: pointer; }
+        .btn-big { background: var(--secondary); color: white; border: none; padding: 16px; border-radius: 12px; width: 100%; font-weight: bold; margin-top: 10px; cursor: pointer; }
     </style>
 </head>
 <body>
@@ -89,8 +87,8 @@
     <div id="pantalla-info" class="pantalla-full">
         <div style="height:40vh; border-bottom: 2px solid var(--secondary);" id="hero-cont"></div>
         <div style="padding: 25px 8%;">
-            <h1 id="info-titulo"></h1>
-            <p id="info-desc" style="color:#ccc; margin: 20px 0; line-height: 1.6;"></p>
+            <h1 id="info-titulo" style="font-size: 28px;"></h1>
+            <p id="info-desc" style="color:#ccc; margin: 20px 0; line-height: 1.6; font-size: 15px;"></p>
             <button class="btn-big" onclick="abrirPlayer()">▶ REPRODUCIR</button>
             <button class="btn-big" onclick="cerrarInfo()" style="background:#222;">VOLVER</button>
         </div>
@@ -100,7 +98,9 @@
         <div class="video-wrapper">
             <button class="btn-ui-player btn-close" onclick="cerrarPlayer()">✕ SALIR</button>
             <button class="btn-ui-player btn-list" onclick="toggleEps()">EPISODIOS ☰</button>
-            <iframe id="main-iframe" allow="autoplay; fullscreen; picture-in-picture" allowfullscreen></iframe>
+            <iframe id="main-iframe" 
+                    allow="autoplay; fullscreen; picture-in-picture" 
+                    allowfullscreen></iframe>
         </div>
         <div id="menu-episodios"><div id="lista-eps"></div></div>
     </div>
@@ -108,8 +108,8 @@
     <script>
         const API_KEY = '6de1162b511f00bd38d39d7eb38396e9';
         const contenido = [
-            { id: '37863', tipo: 'tv', label: 'Episodios', t: 'https://vjs.zencdn.net/v/oceans.mp4', eps: Array.from({length: 51}, (_, i) => ({ n: `Capítulo ${i+1}`, d: '1H05vvUGWykQ6tnuApYV6EOEREVf4Kkqa' })) },
-            { id: '533535', tipo: 'movie', label: 'Película', t: 'https://vjs.zencdn.net/v/oceans.mp4', eps: [{n: 'Película', d: '1Dqj5yyS1hoU42x6KqCNEdnYvCYsaGfY2'}] },
+            { id: '37863', tipo: 'tv', label: 'Episodios', t: 'https://vjs.zencdn.net/v/oceans.mp4', eps: Array.from({length: 51}, (_, i) => ({ n: `FMA Brotherhood - Cap ${i+1}`, d: '1H05vvUGWykQ6tnuApYV6EOEREVf4Kkqa' })) },
+            { id: '533535', tipo: 'movie', label: 'Película', t: 'https://vjs.zencdn.net/v/oceans.mp4', eps: [{n: 'Película Completa', d: '1Dqj5yyS1hoU42x6KqCNEdnYvCYsaGfY2'}] },
             { id: '671', tipo: 'movie', label: 'Película', t: 'https://vjs.zencdn.net/v/oceans.mp4', eps: [{n: 'Harry Potter 1', d: '1Dqj5yyS1hoU42x6KqCNEdnYvCYsaGfY2'}] },
             { id: '672', tipo: 'movie', label: 'Película', t: 'https://vjs.zencdn.net/v/oceans.mp4', eps: [{n: 'Harry Potter 2', d: '1Dqj5yyS1hoU42x6KqCNEdnYvCYsaGfY2'}] },
             { id: '120', tipo: 'movie', label: 'Película', t: 'https://vjs.zencdn.net/v/oceans.mp4', eps: [{n: 'LOTR', d: '1Dqj5yyS1hoU42x6KqCNEdnYvCYsaGfY2'}] },
