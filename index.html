@@ -43,11 +43,12 @@
             border-radius: 8px; padding: 8px 15px; color: white; outline: none; width: 45%;
         }
 
-        /* CATALOGO */
+        /* CATALOGO CON LIMITADOR DE ZOOM */
         .contenedor { 
             display: grid; grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); 
             gap: 60px 20px; padding: 110px 5% 120px; 
             overflow-y: auto; height: 100vh;
+            overflow-x: hidden; /* Evita desborde lateral por zoom */
         }
 
         .card-container { position: relative; width: 100%; height: 280px; }
@@ -56,8 +57,10 @@
             position: absolute; width: 100%; height: 100%; background: #050505; border-radius: 12px; 
             transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275); cursor: pointer; z-index: 10; 
             border: 1px solid #222; overflow: hidden; display: flex; flex-direction: column;
+            transform-origin: center; /* Zoom hacia el centro */
         }
-        .card:hover { transform: scale(1.4); z-index: 5000; border-color: var(--secondary); box-shadow: 0 0 20px var(--aura); }
+        /* Zoom moderado para que no se salga de la pantalla */
+        .card:hover { transform: scale(1.15); z-index: 5000; border-color: var(--secondary); box-shadow: 0 0 20px var(--aura); }
 
         .card img, .card-video-prev { width: 100%; height: 210px; object-fit: cover; display: block; border: none; }
         .card-video-prev { position: absolute; top: 0; left: 0; opacity: 0; transition: 0.3s; z-index: 2; pointer-events: none; }
@@ -67,21 +70,22 @@
         .card-body b { font-size: 10px; color: var(--secondary); text-transform: uppercase; }
         .card-body p { margin: 4px 0 0; font-size: 13px; font-weight: bold; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 
-        /* REPRODUCTOR - FIX ORIENTACIÓN */
+        /* REPRODUCTOR - MEJORADO PARA LANDSCAPE */
         #pantalla-player { 
             display: none; position: fixed; inset: 0; background: #000; 
             z-index: 8000; flex-direction: column;
         }
-        .video-viewport { width: 100%; flex-grow: 1; background: #000; display: flex; align-items: center; justify-content: center; }
+        .video-viewport { width: 100%; flex-grow: 1; background: #000; display: flex; align-items: center; justify-content: center; position: relative; }
         iframe { width: 100%; height: 100%; border: none; }
 
         .footer-player { 
-            width: 100%; height: auto; min-height: 80px; background: #0a0a0a; border-top: 2px solid var(--secondary); 
-            display: flex; align-items: center; justify-content: space-around; 
-            padding: 10px 20px env(safe-area-inset-bottom); z-index: 8005;
+            width: 100%; height: auto; min-height: 85px; background: #0a0a0a; border-top: 2px solid var(--secondary); 
+            display: flex; align-items: center; justify-content: space-between; 
+            /* Padding extra para que el botón de achicar video sea visible en esquinas */
+            padding: 10px 40px calc(10px + env(safe-area-inset-bottom)); z-index: 8005;
         }
 
-        .btn-ui { background: var(--secondary); color: white; border: none; padding: 12px 20px; border-radius: 10px; font-weight: 800; cursor: pointer; font-size: 14px; white-space: nowrap; }
+        .btn-ui { background: var(--secondary); color: white; border: none; padding: 12px 20px; border-radius: 10px; font-weight: 800; cursor: pointer; font-size: 14px; }
 
         #menu-episodios { 
             position: fixed; right: 0; top: 0; bottom: 85px; width: 280px; 
@@ -134,28 +138,31 @@
     <script>
         const API_KEY = '6de1162b511f00bd38d39d7eb38396e9';
         
-        // --- BASE DE DATOS AMPLIADA ---
+        // --- BASE DE DATOS ACTUALIZADA ---
         const contenido = [
             { 
-                id: '37863', tipo: 'tv', trailer: 'https://vjs.zencdn.net/v/oceans.mp4', 
+                id: '37863', tipo: 'tv', trailer: 'https://vjs.zencdn.net/v/oceans.mp4', label: 'Episodios',
                 episodios: Array.from({length: 51}, (_, i) => ({ n: `FMA Brotherhood - Cap ${i+1}`, d: '1H05vvUGWykQ6tnuApYV6EOEREVf4Kkqa' })) 
             },
+            // 6 Películas separadas como pediste
+            { id: '533535', tipo: 'movie', trailer: 'https://vjs.zencdn.net/v/oceans.mp4', label: 'Película', episodios: [{n: 'Pelicula 1', d: '1Dqj5yyS1hoU42x6KqCNEdnYvCYsaGfY2'}] },
+            { id: '533535', tipo: 'movie', trailer: 'https://vjs.zencdn.net/v/oceans.mp4', label: 'Película', episodios: [{n: 'Pelicula 2', d: '1Dqj5yyS1hoU42x6KqCNEdnYvCYsaGfY2'}] },
+            { id: '533535', tipo: 'movie', trailer: 'https://vjs.zencdn.net/v/oceans.mp4', label: 'Película', episodios: [{n: 'Pelicula 3', d: '1Dqj5yyS1hoU42x6KqCNEdnYvCYsaGfY2'}] },
+            { id: '533535', tipo: 'movie', trailer: 'https://vjs.zencdn.net/v/oceans.mp4', label: 'Película', episodios: [{n: 'Pelicula 4', d: '1Dqj5yyS1hoU42x6KqCNEdnYvCYsaGfY2'}] },
+            { id: '533535', tipo: 'movie', trailer: 'https://vjs.zencdn.net/v/oceans.mp4', label: 'Película', episodios: [{n: 'Pelicula 5', d: '1Dqj5yyS1hoU42x6KqCNEdnYvCYsaGfY2'}] },
+            { id: '533535', tipo: 'movie', trailer: 'https://vjs.zencdn.net/v/oceans.mp4', label: 'Película', episodios: [{n: 'Pelicula 6', d: '1Dqj5yyS1hoU42x6KqCNEdnYvCYsaGfY2'}] },
+            
             { 
-                id: '37863', tipo: 'movie', trailer: 'https://vjs.zencdn.net/v/oceans.mp4', 
-                titulo_alt: "Películas FMA",
-                episodios: Array.from({length: 6}, (_, i) => ({ n: `FMA Película ${i+1}`, d: '1Dqj5yyS1hoU42x6KqCNEdnYvCYsaGfY2' })) 
-            },
-            { 
-                id: '76479', tipo: 'tv', trailer: 'https://vjs.zencdn.net/v/oceans.mp4', 
+                id: '76479', tipo: 'tv', trailer: 'https://vjs.zencdn.net/v/oceans.mp4', label: 'Episodios',
                 episodios: Array.from({length: 61}, (_, i) => ({ n: `The Boys - Cap ${i+1}`, d: '1Dqj5yyS1hoU42x6KqCNEdnYvCYsaGfY2' })) 
             },
             { 
-                id: '1399', tipo: 'tv', trailer: 'https://vjs.zencdn.net/v/oceans.mp4', 
-                episodios: Array.from({length: 6}, (_, i) => ({ n: `Serie 6 Caps - Cap ${i+1}`, d: '1H05vvUGWykQ6tnuApYV6EOEREVf4Kkqa' })) 
+                id: '1399', tipo: 'tv', trailer: 'https://vjs.zencdn.net/v/oceans.mp4', label: 'Episodios',
+                episodios: Array.from({length: 6}, (_, i) => ({ n: `Serie - Cap ${i+1}`, d: '1H05vvUGWykQ6tnuApYV6EOEREVf4Kkqa' })) 
             },
             { 
-                id: '60625', tipo: 'tv', trailer: 'https://vjs.zencdn.net/v/oceans.mp4', 
-                episodios: Array.from({length: 3}, (_, i) => ({ n: `Serie 3 Caps - Cap ${i+1}`, d: '1Dqj5yyS1hoU42x6KqCNEdnYvCYsaGfY2' })) 
+                id: '60625', tipo: 'tv', trailer: 'https://vjs.zencdn.net/v/oceans.mp4', label: 'Partes', // Cambiado a Partes
+                episodios: Array.from({length: 3}, (_, i) => ({ n: `Parte ${i+1}`, d: '1Dqj5yyS1hoU42x6KqCNEdnYvCYsaGfY2' })) 
             }
         ];
 
@@ -171,7 +178,7 @@
                 div.innerHTML = `<div class="card" onclick='abrirInfo(${JSON.stringify({...item, data})})'>
                     <video class="card-video-prev" src="${item.trailer}" muted loop playsinline></video>
                     <img src="https://image.tmdb.org/t/p/w500${data.poster_path}">
-                    <div class="card-body"><b>${item.episodios.length} ELEMENTOS</b><p>${item.titulo_alt || data.name || data.title}</p></div>
+                    <div class="card-body"><b>${item.episodios.length} ${item.label}</b><p>${data.name || data.title}</p></div>
                 </div>`;
                 lista.appendChild(div);
                 const card = div.querySelector('.card'), video = div.querySelector('video');
@@ -182,7 +189,7 @@
         function abrirInfo(obj) {
             itemActual = obj;
             document.getElementById('pantalla-info').style.display = 'block';
-            document.getElementById('info-titulo').innerText = obj.titulo_alt || obj.data.name || obj.data.title;
+            document.getElementById('info-titulo').innerText = obj.data.name || obj.data.title;
             document.getElementById('info-desc').innerText = obj.data.overview;
             document.getElementById('info-cats').innerHTML = "<b>GÉNEROS:</b> " + obj.data.genres.map(g => g.name).join(' / ');
             document.getElementById('hero-cont').innerHTML = `<video src="${obj.trailer}" autoplay muted loop playsinline style="width:100%;height:100%;object-fit:cover;"></video>`;
