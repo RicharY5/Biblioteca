@@ -3,100 +3,60 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    
-    <meta name="mobile-web-app-capable" content="yes">
-    <meta name="apple-mobile-web-app-capable" content="yes">
-    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-    <link rel="manifest" href="data:application/manifest+json,{'name':'MiCinePremium','display':'standalone'}">
-
     <title>Mi Cine Premium</title>
     <style>
         :root { --secondary: #a855f7; --aura: rgba(168, 85, 247, 0.15); }
         * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; margin: 0; padding: 0; }
         
-        body { 
-            background: #000; color: white; font-family: 'Segoe UI', sans-serif; 
-            overflow: hidden; width: 100vw; height: 100vh;
-        }
+        body { background: #000; color: white; font-family: 'Segoe UI', sans-serif; overflow: hidden; width: 100vw; height: 100vh; }
 
-        /* FONDO BIBLIOTECA + AURA MORADA */
-        #bg-video-main {
-            position: fixed; inset: 0; width: 100%; height: 100%; 
-            z-index: -2; object-fit: cover; filter: brightness(0.3);
-        }
-        .aura-overlay {
-            position: fixed; inset: 0; z-index: -1;
-            background: radial-gradient(circle at center, var(--aura) 0%, transparent 70%);
-            pointer-events: none;
-        }
+        /* FONDO */
+        #bg-video-main { position: fixed; inset: 0; width: 100%; height: 100%; z-index: -2; object-fit: cover; filter: brightness(0.3); }
+        .aura-overlay { position: fixed; inset: 0; z-index: -1; background: radial-gradient(circle at center, var(--aura) 0%, transparent 70%); pointer-events: none; }
 
         /* HEADER */
-        .header { 
-            position: fixed; top: 0; width: 100%; height: 75px; padding: 0 5%; 
-            background: rgba(0,0,0,0.8); backdrop-filter: blur(15px);
-            z-index: 1000; display: flex; align-items: center; justify-content: space-between;
-            border-bottom: 2px solid var(--secondary);
-        }
+        .header { position: fixed; top: 0; width: 100%; height: 75px; padding: 0 5%; background: rgba(0,0,0,0.8); backdrop-filter: blur(15px); z-index: 1000; display: flex; align-items: center; justify-content: space-between; border-bottom: 2px solid var(--secondary); }
+        .search-box { background: rgba(255,255,255,0.1); border: 1px solid var(--secondary); border-radius: 8px; padding: 8px 15px; color: white; outline: none; width: 45%; }
 
-        .search-box {
-            background: rgba(255,255,255,0.1); border: 1px solid var(--secondary);
-            border-radius: 8px; padding: 8px 15px; color: white; outline: none; width: 45%;
-        }
+        /* CATALOGO - FIX PC (IMÁGENES COMPLETAS) */
+        .contenedor { display: grid; grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); gap: 40px 20px; padding: 110px 5% 120px; overflow-y: auto; height: 100vh; overflow-x: hidden; }
+        .card-container { position: relative; width: 100%; }
+        .card { background: #050505; border-radius: 12px; transition: all 0.4s ease; cursor: pointer; border: 1px solid #222; overflow: hidden; display: flex; flex-direction: column; height: 100%; }
+        .card:hover { transform: scale(1.05); border-color: var(--secondary); box-shadow: 0 0 20px var(--aura); }
+        
+        .card img { width: 100%; aspect-ratio: 2/3; object-fit: cover; display: block; }
+        .card-body { padding: 12px; background: #050505; flex-grow: 1; border-top: 1px solid #111; }
+        .card-body b { font-size: 10px; color: var(--secondary); }
+        .card-body p { margin-top: 5px; font-size: 14px; font-weight: bold; }
 
-        /* CATALOGO CON LIMITADOR DE ZOOM */
-        .contenedor { 
-            display: grid; grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); 
-            gap: 60px 20px; padding: 110px 5% 120px; 
-            overflow-y: auto; height: 100vh;
-            overflow-x: hidden; /* Evita desborde lateral por zoom */
-        }
+        /* CATEGORÍAS DISEÑO NUEVO */
+        .genre-container { display: flex; flex-wrap: wrap; gap: 8px; margin: 15px 0; }
+        .genre-pill { background: rgba(168, 85, 247, 0.2); border: 1px solid var(--secondary); padding: 5px 12px; border-radius: 20px; font-size: 12px; color: #ddd; }
 
-        .card-container { position: relative; width: 100%; height: 280px; }
-
-        .card { 
-            position: absolute; width: 100%; height: 100%; background: #050505; border-radius: 12px; 
-            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275); cursor: pointer; z-index: 10; 
-            border: 1px solid #222; overflow: hidden; display: flex; flex-direction: column;
-            transform-origin: center; /* Zoom hacia el centro */
-        }
-        /* Zoom moderado para que no se salga de la pantalla */
-        .card:hover { transform: scale(1.15); z-index: 5000; border-color: var(--secondary); box-shadow: 0 0 20px var(--aura); }
-
-        .card img, .card-video-prev { width: 100%; height: 210px; object-fit: cover; display: block; border: none; }
-        .card-video-prev { position: absolute; top: 0; left: 0; opacity: 0; transition: 0.3s; z-index: 2; pointer-events: none; }
-        .card:hover .card-video-prev { opacity: 1; }
-
-        .card-body { padding: 10px; background: #050505; flex-grow: 1; margin-top: -1px; }
-        .card-body b { font-size: 10px; color: var(--secondary); text-transform: uppercase; }
-        .card-body p { margin: 4px 0 0; font-size: 13px; font-weight: bold; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-
-        /* REPRODUCTOR - MEJORADO PARA LANDSCAPE */
-        #pantalla-player { 
-            display: none; position: fixed; inset: 0; background: #000; 
-            z-index: 8000; flex-direction: column;
-        }
-        .video-viewport { width: 100%; flex-grow: 1; background: #000; display: flex; align-items: center; justify-content: center; position: relative; }
+        /* REPRODUCTOR FIX ORIENTACIÓN */
+        #pantalla-player { display: none; position: fixed; inset: 0; background: #000; z-index: 8000; flex-direction: column; }
+        .video-viewport { width: 100%; flex-grow: 1; display: flex; align-items: center; justify-content: center; }
         iframe { width: 100%; height: 100%; border: none; }
 
         .footer-player { 
-            width: 100%; height: auto; min-height: 85px; background: #0a0a0a; border-top: 2px solid var(--secondary); 
+            width: 100%; min-height: 100px; background: #0a0a0a; border-top: 2px solid var(--secondary); 
             display: flex; align-items: center; justify-content: space-between; 
-            /* Padding extra para que el botón de achicar video sea visible en esquinas */
-            padding: 10px 40px calc(10px + env(safe-area-inset-bottom)); z-index: 8005;
+            padding: 10px 30px; z-index: 8005;
+            padding-bottom: max(20px, env(safe-area-inset-bottom)); /* Más espacio abajo */
+        }
+
+        /* Si el teléfono se gira, damos mucho más espacio al botón de achicar video */
+        @media (orientation: landscape) {
+            .footer-player { min-height: 120px; padding-bottom: 40px; }
         }
 
         .btn-ui { background: var(--secondary); color: white; border: none; padding: 12px 20px; border-radius: 10px; font-weight: 800; cursor: pointer; font-size: 14px; }
-
-        #menu-episodios { 
-            position: fixed; right: 0; top: 0; bottom: 85px; width: 280px; 
-            background: rgba(5,5,5,0.95); border-left: 2px solid var(--secondary); 
-            z-index: 9000; padding: 20px; display: none; overflow-y: auto; 
-        }
-        .ep-item { padding: 15px; border-bottom: 1px solid #222; cursor: pointer; font-size: 13px; }
+        
+        #menu-episodios { position: fixed; right: 0; top: 0; bottom: 100px; width: 280px; background: rgba(5,5,5,0.98); border-left: 2px solid var(--secondary); z-index: 9000; padding: 20px; display: none; overflow-y: auto; }
+        .ep-item { padding: 15px; border-bottom: 1px solid #222; cursor: pointer; }
         .ep-item.active { background: var(--secondary); color: white; }
 
         .pantalla-full { display: none; position: fixed; inset: 0; background: #000; z-index: 6000; overflow-y: auto; }
-        .category-box { border-left: 4px solid var(--secondary); padding-left: 15px; margin: 20px 0; color: #bbb; font-size: 14px; }
     </style>
 </head>
 <body>
@@ -113,11 +73,11 @@
     </div>
 
     <div id="pantalla-info" class="pantalla-full">
-        <div style="height:40vh; border-bottom: 2px solid var(--secondary);" id="hero-cont"></div>
+        <div style="height:45vh; border-bottom: 2px solid var(--secondary);" id="hero-cont"></div>
         <div style="padding: 30px 8%;">
-            <h1 id="info-titulo" style="font-size: 2.2rem;"></h1>
-            <div id="info-cats" class="category-box"></div>
-            <p id="info-desc" style="color:#eee; line-height:1.6; margin-bottom:30px;"></p>
+            <h1 id="info-titulo" style="font-size: 2.5rem; color: white;"></h1>
+            <div id="info-cats" class="genre-container"></div>
+            <p id="info-desc" style="color:#bbb; line-height:1.7; font-size:16px; margin-bottom:30px;"></p>
             <div style="display:flex; gap:15px;">
                 <button class="btn-ui" onclick="abrirPlayer()" style="flex:2;">▶ REPRODUCIR</button>
                 <button class="btn-ui" onclick="cerrarInfo()" style="flex:1; background:#222;">VOLVER</button>
@@ -129,7 +89,7 @@
         <div class="video-viewport"><iframe id="main-iframe" allowfullscreen></iframe></div>
         <div class="footer-player">
             <button class="btn-ui" onclick="cerrarPlayer()" style="background:#222;">✕ SALIR</button>
-            <span id="ep-nombre-ui" style="font-size:11px; color:#888; font-weight:bold; padding: 0 10px; text-align:center;"></span>
+            <span id="ep-nombre-ui" style="font-size:11px; color:#666; font-weight:bold; flex:1; text-align:center;"></span>
             <button class="btn-ui" onclick="toggleEps()">EPISODIOS ☰</button>
         </div>
         <div id="menu-episodios"><div id="lista-eps"></div></div>
@@ -138,35 +98,19 @@
     <script>
         const API_KEY = '6de1162b511f00bd38d39d7eb38396e9';
         
-        // --- BASE DE DATOS ACTUALIZADA ---
         const contenido = [
-            { 
-                id: '37863', tipo: 'tv', trailer: 'https://vjs.zencdn.net/v/oceans.mp4', label: 'Episodios',
-                episodios: Array.from({length: 51}, (_, i) => ({ n: `FMA Brotherhood - Cap ${i+1}`, d: '1H05vvUGWykQ6tnuApYV6EOEREVf4Kkqa' })) 
-            },
-            // 6 Películas separadas como pediste
-            { id: '533535', tipo: 'movie', trailer: 'https://vjs.zencdn.net/v/oceans.mp4', label: 'Película', episodios: [{n: 'Pelicula 1', d: '1Dqj5yyS1hoU42x6KqCNEdnYvCYsaGfY2'}] },
-            { id: '533535', tipo: 'movie', trailer: 'https://vjs.zencdn.net/v/oceans.mp4', label: 'Película', episodios: [{n: 'Pelicula 2', d: '1Dqj5yyS1hoU42x6KqCNEdnYvCYsaGfY2'}] },
-            { id: '533535', tipo: 'movie', trailer: 'https://vjs.zencdn.net/v/oceans.mp4', label: 'Película', episodios: [{n: 'Pelicula 3', d: '1Dqj5yyS1hoU42x6KqCNEdnYvCYsaGfY2'}] },
-            { id: '533535', tipo: 'movie', trailer: 'https://vjs.zencdn.net/v/oceans.mp4', label: 'Película', episodios: [{n: 'Pelicula 4', d: '1Dqj5yyS1hoU42x6KqCNEdnYvCYsaGfY2'}] },
-            { id: '533535', tipo: 'movie', trailer: 'https://vjs.zencdn.net/v/oceans.mp4', label: 'Película', episodios: [{n: 'Pelicula 5', d: '1Dqj5yyS1hoU42x6KqCNEdnYvCYsaGfY2'}] },
-            { id: '533535', tipo: 'movie', trailer: 'https://vjs.zencdn.net/v/oceans.mp4', label: 'Película', episodios: [{n: 'Pelicula 6', d: '1Dqj5yyS1hoU42x6KqCNEdnYvCYsaGfY2'}] },
+            { id: '37863', tipo: 'tv', label: 'Episodios', episodios: Array.from({length: 51}, (_, i) => ({ n: `FMA - Cap ${i+1}`, d: '1H05vvUGWykQ6tnuApYV6EOEREVf4Kkqa' })) },
+            // 6 Películas Individuales
+            { id: '533535', tipo: 'movie', label: 'Película', episodios: [{n: 'Deadpool & Wolverine', d: '1Dqj5yyS1hoU42x6KqCNEdnYvCYsaGfY2'}] },
+            { id: '671', tipo: 'movie', label: 'Película', episodios: [{n: 'Harry Potter 1', d: '1Dqj5yyS1hoU42x6KqCNEdnYvCYsaGfY2'}] },
+            { id: '672', tipo: 'movie', label: 'Película', episodios: [{n: 'Harry Potter 2', d: '1Dqj5yyS1hoU42x6KqCNEdnYvCYsaGfY2'}] },
+            { id: '120', tipo: 'movie', label: 'Película', episodios: [{n: 'El Señor de los Anillos', d: '1Dqj5yyS1hoU42x6KqCNEdnYvCYsaGfY2'}] },
+            { id: '155', tipo: 'movie', label: 'Película', episodios: [{n: 'Batman: El Caballero de la Noche', d: '1Dqj5yyS1hoU42x6KqCNEdnYvCYsaGfY2'}] },
+            { id: '19995', tipo: 'movie', label: 'Película', episodios: [{n: 'Avatar', d: '1Dqj5yyS1hoU42x6KqCNEdnYvCYsaGfY2'}] },
             
-            { 
-                id: '76479', tipo: 'tv', trailer: 'https://vjs.zencdn.net/v/oceans.mp4', label: 'Episodios',
-                episodios: Array.from({length: 61}, (_, i) => ({ n: `The Boys - Cap ${i+1}`, d: '1Dqj5yyS1hoU42x6KqCNEdnYvCYsaGfY2' })) 
-            },
-            { 
-                id: '1399', tipo: 'tv', trailer: 'https://vjs.zencdn.net/v/oceans.mp4', label: 'Episodios',
-                episodios: Array.from({length: 6}, (_, i) => ({ n: `Serie - Cap ${i+1}`, d: '1H05vvUGWykQ6tnuApYV6EOEREVf4Kkqa' })) 
-            },
-            { 
-                id: '60625', tipo: 'tv', trailer: 'https://vjs.zencdn.net/v/oceans.mp4', label: 'Partes', // Cambiado a Partes
-                episodios: Array.from({length: 3}, (_, i) => ({ n: `Parte ${i+1}`, d: '1Dqj5yyS1hoU42x6KqCNEdnYvCYsaGfY2' })) 
-            }
+            { id: '76479', tipo: 'tv', label: 'Episodios', episodios: Array.from({length: 61}, (_, i) => ({ n: `The Boys - Cap ${i+1}`, d: '1Dqj5yyS1hoU42x6KqCNEdnYvCYsaGfY2' })) },
+            { id: '60625', tipo: 'tv', label: 'Partes', episodios: Array.from({length: 3}, (_, i) => ({ n: `Parte ${i+1}`, d: '1Dqj5yyS1hoU42x6KqCNEdnYvCYsaGfY2' })) }
         ];
-
-        let itemActual = null;
 
         async function cargar() {
             const lista = document.getElementById('catalogo');
@@ -176,13 +120,10 @@
                 const div = document.createElement('div');
                 div.className = 'card-container';
                 div.innerHTML = `<div class="card" onclick='abrirInfo(${JSON.stringify({...item, data})})'>
-                    <video class="card-video-prev" src="${item.trailer}" muted loop playsinline></video>
                     <img src="https://image.tmdb.org/t/p/w500${data.poster_path}">
                     <div class="card-body"><b>${item.episodios.length} ${item.label}</b><p>${data.name || data.title}</p></div>
                 </div>`;
                 lista.appendChild(div);
-                const card = div.querySelector('.card'), video = div.querySelector('video');
-                card.onmouseenter = () => video.play(); card.onmouseleave = () => { video.pause(); video.currentTime = 0; };
             }
         }
 
@@ -191,8 +132,8 @@
             document.getElementById('pantalla-info').style.display = 'block';
             document.getElementById('info-titulo').innerText = obj.data.name || obj.data.title;
             document.getElementById('info-desc').innerText = obj.data.overview;
-            document.getElementById('info-cats').innerHTML = "<b>GÉNEROS:</b> " + obj.data.genres.map(g => g.name).join(' / ');
-            document.getElementById('hero-cont').innerHTML = `<video src="${obj.trailer}" autoplay muted loop playsinline style="width:100%;height:100%;object-fit:cover;"></video>`;
+            document.getElementById('info-cats').innerHTML = obj.data.genres.map(g => `<span class="genre-pill">${g.name}</span>`).join('');
+            document.getElementById('hero-cont').innerHTML = `<img src="https://image.tmdb.org/t/p/original${obj.data.backdrop_path}" style="width:100%;height:100%;object-fit:cover;">`;
         }
 
         function abrirPlayer() { document.getElementById('pantalla-player').style.display = 'flex'; reproducir(0); }
