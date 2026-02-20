@@ -10,9 +10,11 @@
         
         body { background: #000; color: white; font-family: 'Segoe UI', sans-serif; min-height: 100dvh; width: 100vw; overflow-x: hidden; }
 
+        /* FONDO */
         #bg-video-main { position: fixed; inset: 0; width: 100%; height: 100%; z-index: -2; object-fit: cover; filter: brightness(0.3); }
         .aura-overlay { position: fixed; inset: 0; z-index: -1; background: radial-gradient(circle at center, var(--aura) 0%, transparent 75%); pointer-events: none; }
 
+        /* HEADER */
         .header { 
             position: sticky; top: 0; width: 100%; height: 75px; padding: 0 5%; 
             background: rgba(0,0,0,0.8); backdrop-filter: blur(15px); z-index: 1000; 
@@ -20,6 +22,7 @@
         }
         .search-box { background: rgba(255,255,255,0.1); border: 1px solid var(--secondary); border-radius: 8px; padding: 10px 15px; color: white; outline: none; width: 50%; }
 
+        /* CATALOGO - DISEÑO BONITO */
         .contenedor { 
             display: grid; grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); 
             gap: 40px 20px; padding: 40px 5% 60px; min-height: calc(100dvh - 75px); 
@@ -27,39 +30,39 @@
         .card-container { width: 100%; height: 280px; position: relative; }
         .card { 
             position: absolute; width: 100%; height: 100%; background: #050505; border-radius: 12px; 
-            transition: transform 0.3s ease; cursor: pointer; z-index: 10; 
+            transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275); cursor: pointer; z-index: 10; 
             border: 1px solid #222; overflow: hidden; display: flex; flex-direction: column;
         }
-        .card:hover { transform: scale(1.05); z-index: 50; border-color: var(--secondary); box-shadow: 0 0 20px var(--aura); }
+        .card:hover { transform: scale(1.1); z-index: 50; border-color: var(--secondary); box-shadow: 0 0 20px var(--aura); }
         .card img { width: 100%; height: 210px; object-fit: cover; }
         .card-video-prev { position: absolute; top: 0; left: 0; width: 100%; height: 210px; object-fit: cover; opacity: 0; transition: 0.3s; z-index: 2; pointer-events: none; }
         .card:hover .card-video-prev { opacity: 1; }
+        
         .card-body { padding: 10px; background: #050505; flex-grow: 1; }
         .card-body b { font-size: 10px; color: var(--secondary); text-transform: uppercase; }
         .card-body p { font-size: 13px; font-weight: bold; margin-top: 4px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 
-        /* REPRODUCTOR OPTIMIZADO */
-        #pantalla-player { display: none; position: fixed; inset: 0; background: #000; z-index: 8000; height: 100dvh; width: 100vw; }
-        .video-wrapper { width: 100%; height: 100%; position: relative; }
-        
-        iframe { width: 100%; height: 100%; border: none; background: #000; }
+        /* REPRODUCTOR */
+        #pantalla-player { display: none; position: fixed; inset: 0; background: #000; z-index: 8000; height: 100dvh; }
+        iframe { width: 100%; height: 100%; border: none; }
 
         .btn-ui-player {
             position: absolute; top: 15px; z-index: 8010;
-            background: rgba(0,0,0,0.9); color: white; border: 1px solid var(--secondary);
-            padding: 8px 15px; border-radius: 8px; font-weight: bold; font-size: 12px;
+            background: rgba(0,0,0,0.85); color: white; border: 1.5px solid var(--secondary);
+            padding: 10px 15px; border-radius: 8px; font-weight: bold; font-size: 12px;
         }
         .btn-close { left: 15px; }
         .btn-list { right: 15px; }
 
         #menu-episodios { 
-            position: fixed; right: 15px; top: 60px; width: 250px; max-height: 60vh;
+            position: fixed; right: 15px; top: 65px; width: 260px; max-height: 60vh;
             background: #0a0a0a; border: 1px solid var(--secondary); border-radius: 12px;
             z-index: 9000; padding: 10px; display: none; overflow-y: auto;
         }
         .ep-item { padding: 12px; border-bottom: 1px solid #222; cursor: pointer; font-size: 13px; }
         .ep-item.active { background: var(--secondary); color: white; border-radius: 6px; }
 
+        /* INFO */
         .pantalla-full { display: none; position: fixed; inset: 0; background: #000; z-index: 6000; overflow-y: auto; }
         .btn-big { background: var(--secondary); color: white; border: none; padding: 16px; border-radius: 12px; width: 100%; font-weight: bold; margin-top: 10px; }
     </style>
@@ -81,7 +84,7 @@
         <div style="height:35vh; border-bottom: 2px solid var(--secondary);" id="hero-cont"></div>
         <div style="padding: 20px 8%;">
             <h1 id="info-titulo"></h1>
-            <p id="info-desc" style="color:#ccc; margin: 15px 0; line-height: 1.5; font-size: 14px;"></p>
+            <p id="info-desc" style="color:#ccc; margin: 20px 0; line-height: 1.5;"></p>
             <button class="btn-big" onclick="abrirPlayer()">▶ REPRODUCIR</button>
             <button class="btn-big" onclick="cerrarInfo()" style="background:#222;">VOLVER</button>
         </div>
@@ -89,7 +92,7 @@
 
     <div id="pantalla-player">
         <button class="btn-ui-player btn-close" onclick="cerrarPlayer()">✕ SALIR</button>
-        <button class="btn-ui-player btn-list" onclick="toggleEps()">CAPÍTULOS ☰</button>
+        <button class="btn-ui-player btn-list" onclick="toggleEps()">CONTENIDO ☰</button>
         <iframe id="main-iframe" allow="autoplay; fullscreen; picture-in-picture" allowfullscreen></iframe>
         <div id="menu-episodios"><div id="lista-eps"></div></div>
     </div>
@@ -97,51 +100,91 @@
     <script>
         const API_KEY = '6de1162b511f00bd38d39d7eb38396e9';
 
-        // --- SECCIÓN PARA AGREGAR CONTENIDO (MÁS ORDENADO) ---
+        // ==========================================
+        // CONFIGURACIÓN DE TU CONTENIDO (ORDENADO)
+        // ==========================================
         const DATABASE = [
+            {
+                nombre: "The Boys",
+                tmdb_id: "76479",
+                tipo: "tv",
+                trailer: "https://vjs.zencdn.net/v/oceans.mp4",
+                videos: [
+                    { titulo: "Capítulo 1", id_drive: "1Dqj5yyS1hoU42x6KqCNEdnYvCYsaGfY2" },
+                    { titulo: "Capítulo 2", id_drive: "1Dqj5yyS1hoU42x6KqCNEdnYvCYsaGfY2" }
+                ]
+            },
+            {
+                nombre: "Harry Potter 1",
+                tmdb_id: "671",
+                tipo: "movie",
+                trailer: "https://vjs.zencdn.net/v/oceans.mp4",
+                videos: [
+                    { titulo: "Película Completa", id_drive: "1Dqj5yyS1hoU42x6KqCNEdnYvCYsaGfY2" }
+                ]
+            },
             {
                 nombre: "Fullmetal Alchemist",
                 tmdb_id: "37863",
                 tipo: "tv",
                 trailer: "https://vjs.zencdn.net/v/oceans.mp4",
-                capitulos: [
-                    { n: "FMA - Cap 1", id_drive: "1H05vvUGWykQ6tnuApYV6EOEREVf4Kkqa" },
-                    { n: "FMA - Cap 2", id_drive: "1H05vvUGWykQ6tnuApYV6EOEREVf4Kkqa" }
+                videos: [
+                    { titulo: "Episodio 1", id_drive: "1H05vvUGWykQ6tnuApYV6EOEREVf4Kkqa" }
                 ]
             },
             {
-                nombre: "Deadpool y Lobezno",
-                tmdb_id: "533535",
+                nombre: "LOTR: El Retorno del Rey",
+                tmdb_id: "122",
                 tipo: "movie",
                 trailer: "https://vjs.zencdn.net/v/oceans.mp4",
-                capitulos: [
-                    { n: "Película Completa", id_drive: "1Dqj5yyS1hoU42x6KqCNEdnYvCYsaGfY2" }
+                videos: [
+                    { titulo: "Parte 1", id_drive: "1Dqj5yyS1hoU42x6KqCNEdnYvCYsaGfY2" },
+                    { titulo: "Parte 2", id_drive: "1Dqj5yyS1hoU42x6KqCNEdnYvCYsaGfY2" }
+                ]
+            },
+            {
+                nombre: "Juego de Tronos",
+                tmdb_id: "1399",
+                tipo: "tv",
+                trailer: "https://vjs.zencdn.net/v/oceans.mp4",
+                videos: [
+                    { titulo: "Temporada 1 Cap 1", id_drive: "1H05vvUGWykQ6tnuApYV6EOEREVf4Kkqa" }
                 ]
             }
         ];
 
-        let seleccionado = null;
+        let itemActual = null;
 
         async function cargar() {
-            const cat = document.getElementById('catalogo');
-            for (let peli of DATABASE) {
-                const res = await fetch(`https://api.themoviedb.org/3/${peli.tipo}/${peli.tmdb_id}?api_key=${API_KEY}&language=es-ES`);
+            const catalogo = document.getElementById('catalogo');
+            for (let entrada of DATABASE) {
+                const res = await fetch(`https://api.themoviedb.org/3/${entrada.tipo}/${entrada.tmdb_id}?api_key=${API_KEY}&language=es-ES`);
                 const data = await res.json();
-                const item = document.createElement('div');
-                item.className = 'card-container';
-                item.innerHTML = `<div class="card">
-                    <video class="card-video-prev" src="${peli.trailer}" muted loop playsinline></video>
-                    <img src="https://image.tmdb.org/t/p/w500${data.poster_path}">
-                    <div class="card-body"><b>${peli.capitulos.length} VIDEOS</b><p>${peli.nombre}</p></div>
-                </div>`;
-                item.onclick = () => {
-                    seleccionado = {...peli, data};
+                
+                const div = document.createElement('div');
+                div.className = 'card-container';
+                div.innerHTML = `
+                    <div class="card">
+                        <video class="card-video-prev" src="${entrada.trailer}" muted loop playsinline></video>
+                        <img src="https://image.tmdb.org/t/p/w500${data.poster_path}">
+                        <div class="card-body">
+                            <b>${entrada.videos.length} ${entrada.tipo === 'movie' ? 'Partes' : 'Capítulos'}</b>
+                            <p>${entrada.nombre}</p>
+                        </div>
+                    </div>`;
+                
+                div.querySelector('.card').onclick = () => {
+                    itemActual = {...entrada, data};
                     document.getElementById('pantalla-info').style.display = 'block';
-                    document.getElementById('info-titulo').innerText = peli.nombre;
+                    document.getElementById('info-titulo').innerText = entrada.nombre;
                     document.getElementById('info-desc').innerText = data.overview;
-                    document.getElementById('hero-cont').innerHTML = `<video src="${peli.trailer}" autoplay muted loop playsinline style="width:100%;height:100%;object-fit:cover;"></video>`;
+                    document.getElementById('hero-cont').innerHTML = `<video src="${entrada.trailer}" autoplay muted loop playsinline style="width:100%;height:100%;object-fit:cover;"></video>`;
                 };
-                cat.appendChild(item);
+
+                const card = div.querySelector('.card'), video = div.querySelector('video');
+                card.onmouseenter = () => video.play(); 
+                card.onmouseleave = () => { video.pause(); video.currentTime = 0; };
+                catalogo.appendChild(div);
             }
         }
 
@@ -151,14 +194,14 @@
         }
 
         function reproducir(idx) {
-            const video = seleccionado.capitulos[idx];
-            document.getElementById('main-iframe').src = `https://drive.google.com/file/d/${video.id_drive}/preview`;
+            const vid = itemActual.videos[idx];
+            document.getElementById('main-iframe').src = `https://drive.google.com/file/d/${vid.id_drive}/preview`;
             const lista = document.getElementById('lista-eps');
             lista.innerHTML = '';
-            seleccionado.capitulos.forEach((v, i) => {
+            itemActual.videos.forEach((v, i) => {
                 const btn = document.createElement('div');
                 btn.className = `ep-item ${i === idx ? 'active' : ''}`;
-                btn.innerText = v.n;
+                btn.innerText = v.titulo;
                 btn.onclick = () => { reproducir(i); toggleEps(); };
                 lista.appendChild(btn);
             });
