@@ -2,200 +2,103 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Biblioteca</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <link rel="manifest" href="data:application/manifest+json,{'name':'MiCine','display':'standalone'}">
+
+    <title>Mi Cine Premium</title>
     <style>
-        /* DISEÑO */
-        body {
-            background-color: #141414;
-            color: white;
-            font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
-            margin: 0;
-            padding: 20px;
-        }
-
-        h1 {
-            color: #E50914;
-            text-align: center;
-            font-size: 2.5rem;
-            margin-bottom: 40px;
-        }
-
-        .contenedor-peliculas {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
-            gap: 25px;
-            padding: 20px;
-            max-width: 1200px;
-            margin: 0 auto;
-        }
-
-        .pelicula-card {
-            background: #2f2f2f;
-            border-radius: 8px;
-            overflow: hidden;
-            transition: transform 0.3s ease, box-shadow 0.3s ease;
-            cursor: pointer;
-            box-shadow: 0 4px 8px rgba(0,0,0,0.5);
-        }
-
-        .pelicula-card:hover {
-            transform: scale(1.08);
-            box-shadow: 0 10px 20px rgba(0,0,0,0.8);
-        }
-
-        .pelicula-card img {
-            width: 100%;
-            height: 270px;
-            object-fit: cover;
-            display: block;
-        }
-
-        .info {
-            padding: 12px;
-            text-align: center;
-        }
-
-        .info strong {
-            display: block;
-            font-size: 0.95rem;
-            margin-bottom: 5px;
-            white-space: nowrap;
-            overflow: hidden;
-            text-overflow: ellipsis;
-        }
-
-        .info span {
-            color: #b3b3b3;
-            font-size: 0.85rem;
-        }
-
-        /* REPRODUCTOR FLOTANTE */
-        #reproductor-seccion {
-            display: none;
-            position: fixed;
-            top: 0; left: 0;
-            width: 100%; height: 100%;
-            background: rgba(0,0,0,0.95);
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            z-index: 1000;
-        }
-
-        iframe {
-            border: 2px solid #333;
-            width: 85%;
-            height: 75%;
-            border-radius: 10px;
-            background: black;
-        }
-
-        .btn-cerrar {
-            margin-bottom: 15px;
-            padding: 12px 30px;
-            background: #E50914;
-            color: white;
-            border: none;
-            border-radius: 4px;
-            cursor: pointer;
-            font-weight: bold;
-            font-size: 1rem;
-        }
-
-        .btn-cerrar:hover {
-            background: #b20710;
-        }
+        body { background: #000; color: white; font-family: sans-serif; margin: 0; padding: 0; }
+        .header { height: 60px; background: #111; display: flex; align-items: center; padding: 0 20px; border-bottom: 2px solid #a855f7; position: sticky; top: 0; z-index: 100; }
+        .contenedor { display: grid; grid-template-columns: repeat(2, 1fr); gap: 15px; padding: 20px; }
+        .card { background: #1a1a1a; border-radius: 8px; overflow: hidden; border: 1px solid #333; }
+        .card img { width: 100%; aspect-ratio: 2/3; object-fit: cover; background: #222; }
+        .card-info { padding: 10px; font-size: 13px; font-weight: bold; text-align: center; }
+        
+        /* Secciones de info */
+        .full-info { display: none; position: fixed; inset: 0; background: #000; z-index: 1000; overflow-y: auto; padding-bottom: 40px; }
+        .category-tag { color: #a855f7; font-size: 12px; font-weight: bold; margin-bottom: 10px; display: block; }
+        .desc { color: #ccc; line-height: 1.5; font-size: 14px; }
+        
+        #player-ui { display: none; position: fixed; inset: 0; background: #000; z-index: 2000; }
+        iframe { width: 100%; height: calc(100% - 80px); border: none; }
+        .footer { height: 80px; background: #111; display: flex; align-items: center; justify-content: space-around; }
+        .btn { background: #a855f7; color: white; border: none; padding: 12px 25px; border-radius: 5px; font-weight: bold; }
     </style>
 </head>
 <body>
 
-    <h1>MI CINE PRIVADO</h1>
+<div class="header"><h2>MI CINE</h2></div>
+<div class="contenedor" id="catalogo">
+    <p id="msg" style="grid-column: 1/-1; text-align: center; color: #555;">Cargando catálogo...</p>
+</div>
 
-    <div class="contenedor-peliculas" id="catalogo">
+<div id="pantalla-info" class="full-info">
+    <div style="width:100%; height:250px; background:#222;" id="trailer-cont"></div>
+    <div style="padding: 20px;">
+        <h1 id="info-t"></h1>
+        <span class="category-tag" id="info-c"></span>
+        <p class="desc" id="info-d"></p>
+        <div style="display:flex; gap:10px;">
+            <button class="btn" onclick="play()">REPRODUCIR</button>
+            <button class="btn" style="background:#444" onclick="cerrar()">VOLVER</button>
         </div>
-
-    <div id="reproductor-seccion">
-        <button class="btn-cerrar" onclick="cerrarPlayer()">✖ CERRAR REPRODUCTOR</button>
-        <iframe id="video-frame" src="" allow="autoplay; fullscreen" allowfullscreen></iframe>
-        <h2 id="video-titulo" style="margin-top: 15px;"></h2>
     </div>
+</div>
 
-    <script>
-        /**
-         * CONFIGURACIÓN DE TU LISTA
-         * tmdbId: El número que sale en la URL de themoviedb.org
-         * driveId: El código largo de tu archivo compartido en Drive
-         * tipo: 'movie' para películas, 'tv' para series o anime
-         */
-        const misPeliculas = [
-            { tmdbId: '157336', driveId: '1pXaU5H5R0VE1kFgwmfxy6nppUnljRFKp', tipo: 'movie' }, // Interstellar
-            { tmdbId: '14003',  driveId: '1haz0Ooid5bJP8zMPKFcBSvQKUqOPlknen', tipo: 'tv' },    // Fullmetal Alchemist
-            { tmdbId: '671',    driveId: 'ID_DE_OTRO_ARCHIVO', tipo: 'movie' }                 // Harry Potter
-        ];
+<div id="player-ui">
+    <iframe id="vid" allowfullscreen></iframe>
+    <div class="footer">
+        <button class="btn" onclick="document.getElementById('player-ui').style.display='none'; document.getElementById('vid').src='';">SALIR</button>
+        <span id="ep-t">Episodio 1</span>
+    </div>
+</div>
 
-        // REEMPLAZA ESTO CON TU API KEY REAL
-        const API_KEY = 'TU_API_KEY_AQUÍ'; 
-        const catalogo = document.getElementById('catalogo');
+<script>
+    const API_KEY = '6de1162b511f00bd38d39d7eb38396e9';
+    const movies = [
+        {id: '37863', type: 'tv', drive: '1H05vvUGWykQ6tnuApYV6EOEREVf4Kkqa'},
+        {id: '533535', type: 'movie', drive: '1Dqj5yyS1hoU42x6KqCNEdnYvCYsaGfY2'}
+    ];
 
-        async function cargarCatalogo() {
-            for (let peli of misPeliculas) {
-                try {
-                    // Consultamos la API según el tipo (película o serie)
-                    const url = `https://api.themoviedb.org/3/${peli.tipo}/${peli.tmdbId}?api_key=${API_KEY}&language=es-ES`;
-                    const response = await fetch(url);
-                    
-                    if (!response.ok) throw new Error("Error en respuesta");
+    let selected = null;
 
-                    const data = await response.json();
-
-                    // Ajuste de nombres y fechas según el tipo de contenido
-                    const nombre = data.title || data.name || "Sin título";
-                    const fechaRaw = data.release_date || data.first_air_date || "";
-                    const anio = fechaRaw.split('-')[0] || "S/N";
-                    const poster = data.poster_path 
-                        ? `https://image.tmdb.org/t/p/w500${data.poster_path}` 
-                        : 'https://via.placeholder.com/500x750?text=Sin+Imagen';
-
-                    // Crear la tarjeta visual
-                    const card = document.createElement('div');
-                    card.className = 'pelicula-card';
-                    card.innerHTML = `
-                        <img src="${poster}" alt="${nombre}">
-                        <div class="info">
-                            <strong>${nombre}</strong>
-                            <span>${anio}</span>
-                        </div>
-                    `;
-                    
-                    card.onclick = () => abrirPlayer(peli.driveId, nombre);
-                    catalogo.appendChild(card);
-
-                } catch (error) {
-                    console.error("Fallo al cargar ID " + peli.tmdbId + ":", error);
-                }
+    async function load() {
+        const res = document.getElementById('catalogo');
+        try {
+            for(let m of movies) {
+                const r = await fetch(https://api.themoviedb.org/3/${m.type}/${m.id}?api_key=${API_KEY}&language=es-ES);
+                const data = await r.json();
+                const div = document.createElement('div');
+                div.className = 'card';
+                div.onclick = () => show(data, m.drive);
+                div.innerHTML = <img src="https://image.tmdb.org/t/p/w500${data.poster_path}"><div class="card-info">${data.name || data.title}</div>;
+                res.appendChild(div);
             }
+            document.getElementById('msg').style.display = 'none';
+        } catch(e) {
+            document.getElementById('msg').innerText = "Error de conexión. Intenta subir el archivo a internet.";
         }
+    }
 
-        function abrirPlayer(idDrive, titulo) {
-            const player = document.getElementById('reproductor-seccion');
-            const frame = document.getElementById('video-frame');
-            document.getElementById('video-titulo').innerText = titulo;
-            
-            // Formato de previsualización de Google Drive
-            frame.src = `https://drive.google.com/file/d/${idDrive}/preview`;
-            player.style.display = 'flex';
-        }
+    function show(data, drive) {
+        selected = drive;
+        document.getElementById('pantalla-info').style.display = 'block';
+        document.getElementById('info-t').innerText = data.name || data.title;
+        document.getElementById('info-d').innerText = data.overview;
+        document.getElementById('info-c').innerText = "GÉNEROS: " + data.genres.map(g => g.name).join(' / ');
+    }
 
-        function cerrarPlayer() {
-            const player = document.getElementById('reproductor-seccion');
-            const frame = document.getElementById('video-frame');
-            frame.src = ""; // Resetea el frame para detener el video
-            player.style.display = 'none';
-        }
+    function play() {
+        document.getElementById('player-ui').style.display = 'block';
+        document.getElementById('vid').src = https://drive.google.com/file/d/${selected}/preview;
+    }
 
-        // Iniciar carga al abrir la página
-        cargarCatalogo();
-    </script>
+    function cerrar() { document.getElementById('pantalla-info').style.display = 'none'; }
+
+    load();
+</script>
 </body>
 </html>
