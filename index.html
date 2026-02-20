@@ -12,61 +12,64 @@
 
         /* FONDO Y AURA */
         #bg-video-main { position: fixed; inset: 0; width: 100%; height: 100%; z-index: -2; object-fit: cover; filter: brightness(0.3); }
-        .aura-overlay { position: fixed; inset: 0; z-index: -1; background: radial-gradient(circle at center, var(--aura) 0%, transparent 75%); pointer-events: none; }
+        .aura-overlay { position: fixed; inset: 0; z-index: -1; background: radial-gradient(circle at center, var(--aura) 0%, transparent 80%); pointer-events: none; }
 
-        /* HEADER - Ajustado para no amontonar */
+        /* HEADER */
         .header { 
             position: fixed; top: 0; width: 100%; height: 70px; padding: 0 5%; 
             background: rgba(0,0,0,0.9); backdrop-filter: blur(15px); z-index: 1000; 
             display: flex; align-items: center; justify-content: space-between; border-bottom: 2px solid var(--secondary); 
         }
-        .header h1 { font-size: 1.2rem; }
-        .search-box { background: rgba(255,255,255,0.1); border: 1px solid var(--secondary); border-radius: 8px; padding: 8px 12px; color: white; width: 50%; font-size: 14px; }
+        .search-box { background: rgba(255,255,255,0.1); border: 1px solid var(--secondary); border-radius: 8px; padding: 8px 12px; color: white; width: 50%; outline: none; }
 
-        /* CATALOGO - Grid Responsivo real */
+        /* CATALOGO - Corregido para que no se salgan las cartas */
         .contenedor { 
-            display: grid; grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); 
+            display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); 
             gap: 20px; padding: 90px 5% 100px; overflow-y: auto; height: 100vh; 
         }
         .card { 
-            background: #050505; border-radius: 10px; border: 1px solid #222; overflow: hidden; 
-            transition: transform 0.3s; cursor: pointer; position: relative;
+            background: #050505; border-radius: 12px; border: 1px solid #222; overflow: hidden; 
+            transition: 0.3s; cursor: pointer; position: relative;
         }
-        .card:active { transform: scale(0.95); }
-        .card img { width: 100%; aspect-ratio: 2/3; object-fit: cover; }
-        .card-body { padding: 8px; }
-        .card-body b { font-size: 9px; color: var(--secondary); display: block; }
-        .card-body p { font-size: 12px; font-weight: bold; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        .card:active { transform: scale(0.95); border-color: var(--secondary); }
+        .card img { width: 100%; aspect-ratio: 2/3; object-fit: cover; display: block; }
+        .card-body { padding: 10px; }
+        .card-body b { font-size: 10px; color: var(--secondary); text-transform: uppercase; }
+        .card-body p { font-size: 13px; font-weight: bold; margin-top: 4px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 
-        /* INFO - Categorías que no se amontonan */
+        /* PANTALLA INFO */
         .pantalla-full { display: none; position: fixed; inset: 0; background: #000; z-index: 6000; overflow-y: auto; }
-        .cat-container { display: flex; flex-wrap: wrap; gap: 8px; margin: 15px 0; }
-        .cat-tag { background: rgba(168, 85, 247, 0.2); border: 1px solid var(--secondary); padding: 5px 12px; border-radius: 15px; font-size: 11px; }
+        .cat-pill { background: rgba(168, 85, 247, 0.15); border: 1px solid var(--secondary); padding: 5px 12px; border-radius: 20px; font-size: 11px; display: inline-block; margin: 5px 5px 0 0; }
 
-        /* REPRODUCTOR - ESTRUCTURA FIJA */
-        #pantalla-player { display: none; position: fixed; inset: 0; background: #000; z-index: 8000; flex-direction: column; }
+        /* REPRODUCTOR - SOLUCIÓN AL AMONTONAMIENTO */
+        #pantalla-player { 
+            display: none; position: fixed; inset: 0; background: #000; z-index: 8000; 
+            flex-direction: column; /* Esto separa el video de los botones */
+        }
         
-        /* El video ocupa el espacio restante SIN tapar botones */
-        .video-viewport { flex: 1; position: relative; background: #000; }
+        .video-viewport { 
+            flex: 1; /* El video toma todo el espacio de arriba */
+            width: 100%; background: #000; position: relative; 
+        }
         iframe { width: 100%; height: 100%; border: none; }
 
-        /* Footer del player - Espacio para el notch/cámara */
         .footer-player { 
-            height: 80px; background: #050505; border-top: 2px solid var(--secondary);
+            height: 90px; /* Altura fija para botones */
+            background: #080808; border-top: 2px solid var(--secondary);
             display: flex; align-items: center; justify-content: space-between;
-            padding: 0 20px env(safe-area-inset-bottom);
+            padding: 0 25px calc(5px + env(safe-area-inset-bottom));
         }
 
-        .btn-ui { background: var(--secondary); color: white; border: none; padding: 10px 18px; border-radius: 8px; font-weight: bold; font-size: 13px; }
-        
-        /* MENU EPISODIOS - Estilo lista limpia */
+        .btn-ui { background: var(--secondary); color: white; border: none; padding: 12px 20px; border-radius: 10px; font-weight: 800; cursor: pointer; font-size: 14px; }
+
+        /* MENU EPISODIOS */
         #menu-episodios { 
-            position: fixed; right: 0; top: 0; bottom: 80px; width: 75%; max-width: 300px;
-            background: rgba(0,0,0,0.95); border-left: 2px solid var(--secondary); 
+            position: fixed; right: 0; top: 0; bottom: 90px; width: 80%; max-width: 320px;
+            background: rgba(5,5,5,0.98); border-left: 2px solid var(--secondary); 
             z-index: 9000; display: none; overflow-y: auto; padding: 20px;
         }
-        .ep-item { padding: 15px; border-bottom: 1px solid #222; font-size: 14px; color: #ccc; }
-        .ep-item.active { color: var(--secondary); font-weight: bold; border-left: 3px solid var(--secondary); }
+        .ep-item { padding: 15px; border-bottom: 1px solid #111; font-size: 14px; color: #eee; cursor: pointer; }
+        .ep-item.active { background: var(--secondary); color: white; border-radius: 8px; }
     </style>
 </head>
 <body>
@@ -77,18 +80,18 @@
     <div id="home">
         <div class="header">
             <h1>MI <span>CINE</span></h1>
-            <input type="text" class="search-box" placeholder="Buscar..." onkeyup="filtrar()">
+            <input type="text" class="search-box" placeholder="Buscar película..." onkeyup="filtrar()">
         </div>
         <div class="contenedor" id="catalogo"></div>
     </div>
 
     <div id="pantalla-info" class="pantalla-full">
-        <div style="height:35vh; position:relative;" id="hero-cont"></div>
-        <div style="padding: 20px 5%;">
-            <h1 id="info-titulo" style="font-size: 1.8rem;"></h1>
-            <div id="info-cats" class="cat-container"></div>
-            <p id="info-desc" style="color:#bbb; font-size: 14px; line-height:1.5; margin-bottom:25px;"></p>
-            <div style="display:flex; gap:10px;">
+        <div style="height:40vh;" id="hero-cont"></div>
+        <div style="padding: 25px 6%;">
+            <h1 id="info-titulo" style="font-size: 2rem;"></h1>
+            <div id="info-cats" style="margin: 15px 0;"></div>
+            <p id="info-desc" style="color:#ccc; line-height:1.6; margin-bottom:30px; font-size: 15px;"></p>
+            <div style="display:flex; gap:12px;">
                 <button class="btn-ui" onclick="abrirPlayer()" style="flex:2;">▶ REPRODUCIR</button>
                 <button class="btn-ui" onclick="cerrarInfo()" style="flex:1; background:#222;">VOLVER</button>
             </div>
@@ -96,12 +99,10 @@
     </div>
 
     <div id="pantalla-player">
-        <div class="video-viewport">
-            <iframe id="main-iframe" allowfullscreen></iframe>
-        </div>
+        <div class="video-viewport"><iframe id="main-iframe" allowfullscreen></iframe></div>
         <div class="footer-player">
             <button class="btn-ui" onclick="cerrarPlayer()" style="background:#222;">✕ SALIR</button>
-            <span id="ep-nombre-ui" style="font-size:10px; color:#666; flex:1; text-align:center; overflow:hidden;"></span>
+            <span id="ep-nombre-ui" style="font-size:11px; color:#777; flex:1; text-align:center; font-weight:bold;"></span>
             <button class="btn-ui" onclick="toggleEps()">EPISODIOS ☰</button>
         </div>
         <div id="menu-episodios"><div id="lista-eps"></div></div>
@@ -111,16 +112,16 @@
         const API_KEY = '6de1162b511f00bd38d39d7eb38396e9';
         
         const contenido = [
-            { id: '37863', tipo: 'tv', label: 'Episodios', t: 'https://vjs.zencdn.net/v/oceans.mp4', eps: Array.from({length: 51}, (_, i) => ({ n: `FMA - Cap ${i+1}`, d: '1H05vvUGWykQ6tnuApYV6EOEREVf4Kkqa' })) },
-            { id: '533535', tipo: 'movie', label: 'Película', t: 'https://vjs.zencdn.net/v/oceans.mp4', eps: [{n: 'Deadpool y Lobezno', d: '1Dqj5yyS1hoU42x6KqCNEdnYvCYsaGfY2'}] },
-            { id: '671', tipo: 'movie', label: 'Película', t: 'https://vjs.zencdn.net/v/oceans.mp4', eps: [{n: 'Harry Potter 1', d: '1Dqj5yyS1hoU42x6KqCNEdnYvCYsaGfY2'}] },
-            { id: '672', tipo: 'movie', label: 'Película', t: 'https://vjs.zencdn.net/v/oceans.mp4', eps: [{n: 'Harry Potter 2', d: '1Dqj5yyS1hoU42x6KqCNEdnYvCYsaGfY2'}] },
-            { id: '120', tipo: 'movie', label: 'Película', t: 'https://vjs.zencdn.net/v/oceans.mp4', eps: [{n: 'El Señor de los Anillos', d: '1Dqj5yyS1hoU42x6KqCNEdnYvCYsaGfY2'}] },
-            { id: '155', tipo: 'movie', label: 'Película', t: 'https://vjs.zencdn.net/v/oceans.mp4', eps: [{n: 'El Caballero Oscuro', d: '1Dqj5yyS1hoU42x6KqCNEdnYvCYsaGfY2'}] },
-            { id: '19995', tipo: 'movie', label: 'Película', t: 'https://vjs.zencdn.net/v/oceans.mp4', eps: [{n: 'Avatar', d: '1Dqj5yyS1hoU42x6KqCNEdnYvCYsaGfY2'}] },
-            { id: '76479', tipo: 'tv', label: 'Episodios', t: 'https://vjs.zencdn.net/v/oceans.mp4', eps: Array.from({length: 61}, (_, i) => ({ n: `The Boys - Cap ${i+1}`, d: '1Dqj5yyS1hoU42x6KqCNEdnYvCYsaGfY2' })) },
-            { id: '1399', tipo: 'tv', label: 'Episodios', t: 'https://vjs.zencdn.net/v/oceans.mp4', eps: Array.from({length: 6}, (_, i) => ({ n: `Juego de Tronos - Cap ${i+1}`, d: '1H05vvUGWykQ6tnuApYV6EOEREVf4Kkqa' })) },
-            { id: '60625', tipo: 'tv', label: 'Partes', t: 'https://vjs.zencdn.net/v/oceans.mp4', eps: Array.from({length: 3}, (_, i) => ({ n: `Rick y Morty - P${i+1}`, d: '1Dqj5yyS1hoU42x6KqCNEdnYvCYsaGfY2' })) }
+            { id: '37863', tipo: 'tv', label: 'Episodios', trailer: 'https://vjs.zencdn.net/v/oceans.mp4', episodios: Array.from({length: 51}, (_, i) => ({ n: `FMA - Cap ${i+1}`, d: '1H05vvUGWykQ6tnuApYV6EOEREVf4Kkqa' })) },
+            { id: '533535', tipo: 'movie', label: 'Película', trailer: 'https://vjs.zencdn.net/v/oceans.mp4', episodios: [{n: 'Deadpool y Lobezno', d: '1Dqj5yyS1hoU42x6KqCNEdnYvCYsaGfY2'}] },
+            { id: '671', tipo: 'movie', label: 'Película', trailer: 'https://vjs.zencdn.net/v/oceans.mp4', episodios: [{n: 'Harry Potter 1', d: '1Dqj5yyS1hoU42x6KqCNEdnYvCYsaGfY2'}] },
+            { id: '672', tipo: 'movie', label: 'Película', trailer: 'https://vjs.zencdn.net/v/oceans.mp4', episodios: [{n: 'Harry Potter 2', d: '1Dqj5yyS1hoU42x6KqCNEdnYvCYsaGfY2'}] },
+            { id: '120', tipo: 'movie', label: 'Película', trailer: 'https://vjs.zencdn.net/v/oceans.mp4', episodios: [{n: 'El Señor de los Anillos', d: '1Dqj5yyS1hoU42x6KqCNEdnYvCYsaGfY2'}] },
+            { id: '155', tipo: 'movie', label: 'Película', trailer: 'https://vjs.zencdn.net/v/oceans.mp4', episodios: [{n: 'Batman: El Caballero Oscuro', d: '1Dqj5yyS1hoU42x6KqCNEdnYvCYsaGfY2'}] },
+            { id: '19995', tipo: 'movie', label: 'Película', trailer: 'https://vjs.zencdn.net/v/oceans.mp4', episodios: [{n: 'Avatar', d: '1Dqj5yyS1hoU42x6KqCNEdnYvCYsaGfY2'}] },
+            { id: '76479', tipo: 'tv', label: 'Episodios', trailer: 'https://vjs.zencdn.net/v/oceans.mp4', episodios: Array.from({length: 61}, (_, i) => ({ n: `The Boys - Cap ${i+1}`, d: '1Dqj5yyS1hoU42x6KqCNEdnYvCYsaGfY2' })) },
+            { id: '1399', tipo: 'tv', label: 'Episodios', trailer: 'https://vjs.zencdn.net/v/oceans.mp4', episodios: Array.from({length: 6}, (_, i) => ({ n: `Serie Premium - Cap ${i+1}`, d: '1H05vvUGWykQ6tnuApYV6EOEREVf4Kkqa' })) },
+            { id: '60625', tipo: 'tv', label: 'Partes', trailer: 'https://vjs.zencdn.net/v/oceans.mp4', episodios: Array.from({length: 3}, (_, i) => ({ n: `Rick y Morty - Parte ${i+1}`, d: '1Dqj5yyS1hoU42x6KqCNEdnYvCYsaGfY2' })) }
         ];
 
         let itemActual = null;
@@ -128,20 +129,16 @@
         async function cargar() {
             const lista = document.getElementById('catalogo');
             for (let item of contenido) {
-                try {
-                    const res = await fetch(`https://api.themoviedb.org/3/${item.tipo}/${item.id}?api_key=${API_KEY}&language=es-ES`);
-                    const data = await res.json();
-                    const div = document.createElement('div');
-                    div.className = 'card';
-                    div.onclick = () => abrirInfo({...item, data});
-                    div.innerHTML = `
-                        <img src="https://image.tmdb.org/t/p/w500${data.poster_path}">
-                        <div class="card-body">
-                            <b>${item.eps.length} ${item.label}</b>
-                            <p>${data.name || data.title}</p>
-                        </div>`;
-                    lista.appendChild(div);
-                } catch(e) { console.error("Error cargando item", item.id); }
+                const res = await fetch(`https://api.themoviedb.org/3/${item.tipo}/${item.id}?api_key=${API_KEY}&language=es-ES`);
+                const data = await res.json();
+                const div = document.createElement('div');
+                div.className = 'card';
+                div.onclick = () => abrirInfo({...item, data});
+                div.innerHTML = `
+                    <img src="https://image.tmdb.org/t/p/w500${data.poster_path}">
+                    <div class="card-body"><b>${item.episodios.length} ${item.label}</b><p>${data.name || data.title}</p></div>
+                `;
+                lista.appendChild(div);
             }
         }
 
@@ -150,23 +147,20 @@
             document.getElementById('pantalla-info').style.display = 'block';
             document.getElementById('info-titulo').innerText = obj.data.name || obj.data.title;
             document.getElementById('info-desc').innerText = obj.data.overview;
-            document.getElementById('info-cats').innerHTML = obj.data.genres.map(g => `<span class="cat-tag">${g.name}</span>`).join('');
-            document.getElementById('hero-cont').innerHTML = `<video src="${obj.t}" autoplay muted loop playsinline style="width:100%;height:100%;object-fit:cover;"></video>`;
+            document.getElementById('info-cats').innerHTML = obj.data.genres.map(g => `<span class="cat-pill">${g.name}</span>`).join('');
+            document.getElementById('hero-cont').innerHTML = `<video src="${obj.trailer}" autoplay muted loop playsinline style="width:100%;height:100%;object-fit:cover;border-bottom:2px solid var(--secondary);"></video>`;
         }
 
         function abrirPlayer() { document.getElementById('pantalla-player').style.display = 'flex'; reproducir(0); }
-
+        
         function reproducir(idx) {
-            const ep = itemActual.eps[idx];
+            const ep = itemActual.episodios[idx];
             document.getElementById('main-iframe').src = `https://drive.google.com/file/d/${ep.d}/preview`;
             document.getElementById('ep-nombre-ui').innerText = ep.n;
             const l = document.getElementById('lista-eps'); l.innerHTML = '';
-            itemActual.eps.forEach((e, i) => {
-                const d = document.createElement('div');
-                d.className = `ep-item ${i === idx ? 'active' : ''}`;
-                d.innerText = e.n;
-                d.onclick = () => { reproducir(i); toggleEps(); };
-                l.appendChild(d);
+            itemActual.episodios.forEach((e, i) => {
+                const d = document.createElement('div'); d.className = `ep-item ${i === idx ? 'active' : ''}`; d.innerText = e.n;
+                d.onclick = () => { reproducir(i); toggleEps(); }; l.appendChild(d);
             });
         }
 
@@ -176,7 +170,9 @@
         
         function filtrar() {
             const q = document.querySelector('.search-box').value.toLowerCase();
-            document.querySelectorAll('.card').forEach(c => c.style.display = c.innerText.toLowerCase().includes(q) ? 'block' : 'none');
+            document.querySelectorAll('.card').forEach(c => {
+                c.style.display = c.innerText.toLowerCase().includes(q) ? 'block' : 'none';
+            });
         }
         cargar();
     </script>
