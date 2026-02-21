@@ -17,6 +17,7 @@
         #bg-video-main { position: fixed; inset: 0; width: 100%; height: 100%; z-index: -2; object-fit: cover; filter: brightness(0.3); }
         .aura-overlay { position: fixed; inset: 0; z-index: -1; background: radial-gradient(circle at center, var(--aura) 0%, transparent 75%); pointer-events: none; }
 
+        /* HEADER */
         .header { 
             position: sticky; top: 0; width: 100%; height: 75px; padding: 0 5%; 
             background: rgba(0,0,0,0.85); backdrop-filter: blur(15px); z-index: 1000; 
@@ -24,44 +25,39 @@
         }
         .search-box { background: rgba(255,255,255,0.1); border: 1px solid var(--secondary); border-radius: 8px; padding: 10px 15px; color: white; outline: none; width: 50%; }
 
-        /* CATALOGO - FIX PORTADAS PC */
+        /* CATALOGO - CARTAS 160px */
         .contenedor { 
-            display: grid; grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); 
-            gap: 30px 20px; padding: 30px 5% 60px; min-height: calc(100dvh - 75px); 
+            display: grid; grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); 
+            gap: 40px 20px; padding: 40px 5% 80px; position: relative; z-index: 10;
         }
-
-        .card-container { width: 100%; aspect-ratio: 2/3; position: relative; margin-bottom: 40px; }
+        .card-container { width: 100%; height: 280px; position: relative; }
         .card { 
             position: absolute; width: 100%; height: 100%; background: #050505; border-radius: 12px; 
-            transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275); cursor: pointer; z-index: 10; 
+            transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275); cursor: pointer;
             border: 1px solid #222; overflow: hidden; display: flex; flex-direction: column;
         }
-        .card:hover { transform: scale(1.08); z-index: 50; border-color: var(--secondary); box-shadow: 0 0 20px var(--aura); }
-        .card img { width: 100%; height: 80%; object-fit: cover; }
-        .card-video-prev { position: absolute; top: 0; left: 0; width: 100%; height: 80%; object-fit: cover; opacity: 0; transition: 0.3s; z-index: 2; pointer-events: none; }
+        .card:hover { transform: scale(1.1); z-index: 100; border-color: var(--secondary); box-shadow: 0 0 20px var(--aura); }
+        .card img { width: 100%; height: 210px; object-fit: cover; }
+        .card-video-prev { position: absolute; top: 0; left: 0; width: 100%; height: 210px; object-fit: cover; opacity: 0; transition: 0.3s; z-index: 2; pointer-events: none; }
         .card:hover .card-video-prev { opacity: 1; }
-        
-        .card-body { padding: 8px; background: #050505; flex-grow: 1; display: flex; flex-direction: column; justify-content: center; }
+        .card-body { padding: 10px; background: #050505; flex-grow: 1; pointer-events: none; }
         .card-body b { font-size: 10px; color: var(--secondary); text-transform: uppercase; }
-        .card-body p { font-size: 13px; font-weight: bold; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        .card-body p { font-size: 13px; font-weight: bold; margin-top: 4px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 
-        /* REPRODUCTOR - FIX CONTROLES GOOGLE */
-        #pantalla-player { display: none; position: fixed; inset: 0; background: #000; z-index: 8000; height: 100dvh; }
-        .video-container { position: absolute; inset: 0; z-index: 1; }
+        /* REPRODUCTOR */
+        #pantalla-player { display: none; position: fixed; inset: 0; background: #000; z-index: 8000; height: 100dvh; width: 100vw; }
+        .video-container { position: absolute; inset: 0; z-index: 1; pointer-events: auto; }
         iframe { width: 100%; height: 100%; border: none; }
-
         .btn-ui-player {
-            position: absolute; top: 10px; z-index: 8010;
-            background: rgba(0,0,0,0.6); color: white; border: 1px solid rgba(168, 85, 247, 0.5);
-            padding: 8px 15px; border-radius: 6px; font-weight: bold; cursor: pointer; transition: 0.3s;
+            position: absolute; top: 15px; z-index: 8010;
+            background: rgba(0,0,0,0.8); color: white; border: 1.5px solid var(--secondary);
+            padding: 10px 18px; border-radius: 8px; font-weight: bold; cursor: pointer;
         }
-        .btn-ui-player:hover { background: var(--secondary); }
-        .btn-close { left: 10px; }
-        .btn-list { right: 10px; }
-
+        .btn-close { left: 15px; }
+        .btn-list { right: 15px; }
         #menu-episodios { 
-            position: fixed; right: 15px; top: 60px; width: 250px; max-height: 70vh;
-            background: rgba(10,10,10,0.95); border: 1px solid var(--secondary); border-radius: 12px;
+            position: fixed; right: 15px; top: 75px; width: 260px; max-height: 60vh;
+            background: #0a0a0a; border: 2px solid var(--secondary); border-radius: 12px;
             z-index: 9000; padding: 10px; display: none; overflow-y: auto;
         }
         .ep-item { padding: 12px; border-bottom: 1px solid #222; cursor: pointer; font-size: 13px; }
@@ -69,12 +65,12 @@
 
         /* PANTALLA INFO */
         .pantalla-full { display: none; position: fixed; inset: 0; background: #000; z-index: 6000; overflow-y: auto; }
-        #hero-cont { position: relative; height: 45vh; width: 100%; }
+        #hero-cont { position: relative; height: 45vh; width: 100%; overflow: hidden; }
         .hero-gradient { position: absolute; inset: 0; background: linear-gradient(to bottom, transparent 30%, #000 100%); z-index: 1; }
         #hero-video { width: 100%; height: 100%; object-fit: cover; }
         .info-content { padding: 0 8% 50px; position: relative; z-index: 2; margin-top: -30px; }
         .lista-info { margin-top: 25px; display: grid; gap: 10px; }
-        .ep-card { background: #111; padding: 15px; border-radius: 10px; border-left: 4px solid var(--secondary); cursor: pointer; display: flex; justify-content: space-between; }
+        .ep-card { background: #111; padding: 15px; border-radius: 10px; border-left: 4px solid var(--secondary); cursor: pointer; display: flex; justify-content: space-between; align-items: center; }
         .btn-big { background: var(--secondary); color: white; border: none; padding: 16px; border-radius: 12px; width: 100%; font-weight: bold; margin-bottom: 10px; cursor: pointer; }
     </style>
 </head>
@@ -86,7 +82,7 @@
     <div id="home">
         <div class="header">
             <h1 style="font-size: 18px;">MI <span style="color:var(--secondary)">BIBLIOTECA</span></h1>
-            <input type="text" class="search-box" placeholder="Buscar en mi biblioteca..." onkeyup="filtrar()">
+            <input type="text" class="search-box" placeholder="Buscar título..." onkeyup="filtrar()">
         </div>
         <div class="contenedor" id="catalogo"></div>
     </div>
@@ -95,17 +91,17 @@
         <div id="hero-cont"><div class="hero-gradient"></div><video id="hero-video" autoplay muted loop playsinline></video></div>
         <div class="info-content">
             <h1 id="info-titulo" style="font-size: 28px;"></h1>
-            <p id="info-desc" style="color:#bbb; margin: 20px 0; line-height: 1.4;"></p>
+            <p id="info-desc" style="color:#bbb; margin-bottom: 25px; line-height: 1.4;"></p>
             <button class="btn-big" onclick="abrirPlayer(0)">▶ REPRODUCIR</button>
             <button class="btn-big" onclick="cerrarInfo()" style="background:#222;">VOLVER</button>
-            <h3 style="margin-top: 30px; color: var(--secondary);">EPISODIOS DISPONIBLES</h3>
+            <h3 id="etiqueta-lista" style="margin-top: 35px; color: var(--secondary);">CONTENIDO</h3>
             <div id="lista-episodios-info" class="lista-info"></div>
         </div>
     </div>
 
     <div id="pantalla-player">
         <button class="btn-ui-player btn-close" onclick="cerrarPlayer()">✕ SALIR</button>
-        <button class="btn-ui-player btn-list" onclick="toggleEps()">EPISODIOS ☰</button>
+        <button class="btn-ui-player btn-list" onclick="toggleEps()">LISTA ☰</button>
         <div class="video-container"><iframe id="main-iframe" allow="autoplay; fullscreen; picture-in-picture" allowfullscreen></iframe></div>
         <div id="menu-episodios"><div id="lista-eps-player"></div></div>
     </div>
@@ -113,55 +109,89 @@
     <script>
         const API_KEY = '6de1162b511f00bd38d39d7eb38396e9';
 
-        // ================================================================
-        // BASE DE DATOS: Aquí puedes poner todos los IDs de Drive uno por uno
-        // ================================================================
-        const DATABASE = [
+        // ==========================================
+        // DATABASE: AGREGAR CONTENIDO AQUÍ ABAJO
+        // ==========================================
+        
+        // --- SECCIÓN: SERIES ---
+        const SERIES = [
             {
-                nombre: "Fullmetal Alchemist", tmdb_id: "37863", tipo: "tv", trailer: "https://vjs.zencdn.net/v/oceans.mp4",
-                episodios: [
-                    { t: "Episodio 1", id: "1H05vvUGWykQ6tnuApYV6EOEREVf4Kkqa" },
-                    { t: "Episodio 2", id: "ID_DRIVE_AQUI" },
-                    // ... Agrega los 51 aquí
+                nombre: "Fullmetal Alchemist",
+                tmdb_id: "37863",
+                trailer: "https://vjs.zencdn.net/v/oceans.mp4",
+                videos: [
+                    { t: "Episodio 1", id: "ID_DRIVE" },
+                    { t: "Episodio 2", id: "ID_DRIVE" },
+                    // Sigue agregando hasta el 51...
                 ]
             },
             {
-                nombre: "The Boys", tmdb_id: "76479", tipo: "tv", trailer: "https://vjs.zencdn.net/v/oceans.mp4",
-                episodios: [
-                    { t: "Episodio 1", id: "ID_DRIVE_AQUI" },
-                    // ... Agrega los 61 aquí
-                ]
-            },
-            {
-                nombre: "Harry Potter 1", tmdb_id: "671", tipo: "movie", trailer: "https://vjs.zencdn.net/v/oceans.mp4",
-                episodios: [{ t: "Película Completa", id: "1Dqj5yyS1hoU42x6KqCNEdnYvCYsaGfY2" }]
-            },
-            {
-                nombre: "Rick y Morty", tmdb_id: "60625", tipo: "tv", trailer: "https://vjs.zencdn.net/v/oceans.mp4",
-                episodios: [
-                    { t: "Parte 1", id: "ID_DRIVE_1" },
-                    { t: "Parte 2", id: "ID_DRIVE_2" },
-                    { t: "Parte 3", id: "ID_DRIVE_3" }
+                nombre: "The Boys",
+                tmdb_id: "76479",
+                trailer: "https://vjs.zencdn.net/v/oceans.mp4",
+                videos: [
+                    { t: "Episodio 1", id: "ID_DRIVE" },
+                    // Sigue agregando hasta el 61...
                 ]
             }
         ];
 
+        // --- SECCIÓN: PELÍCULAS ---
+        const PELICULAS = [
+            {
+                nombre: "Deadpool y Lobezno",
+                tmdb_id: "533535",
+                trailer: "https://vjs.zencdn.net/v/oceans.mp4",
+                videos: [{ t: "Película Completa", id: "ID_DRIVE" }]
+            },
+            {
+                nombre: "Harry Potter 1",
+                tmdb_id: "671",
+                trailer: "https://vjs.zencdn.net/v/oceans.mp4",
+                videos: [{ t: "Película Completa", id: "ID_DRIVE" }]
+            }
+        ];
+
+        // --- SECCIÓN: ESPECIALES (3 PARTES) ---
+        const ESPECIALES = [
+            {
+                nombre: "Rick y Morty (Especial)",
+                tmdb_id: "60625",
+                trailer: "https://vjs.zencdn.net/v/oceans.mp4",
+                videos: [
+                    { t: "Parte 1", id: "ID_DRIVE" },
+                    { t: "Parte 2", id: "ID_DRIVE" },
+                    { t: "Parte 3", id: "ID_DRIVE" }
+                ]
+            }
+        ];
+
+        // UNIFICACIÓN AUTOMÁTICA (No tocar)
+        const DATABASE = [...SERIES, ...PELICULAS, ...ESPECIALES];
+
+        // ==========================================
+        // LÓGICA DEL SITIO (No tocar)
+        // ==========================================
         let seleccionado = null;
 
         async function cargar() {
             const cat = document.getElementById('catalogo');
             for (let item of DATABASE) {
-                const res = await fetch(`https://api.themoviedb.org/3/${item.tipo}/${item.tmdb_id}?api_key=${API_KEY}&language=es-ES`);
+                const tipo = PELICULAS.some(p => p.nombre === item.nombre) ? "movie" : "tv";
+                const res = await fetch(`https://api.themoviedb.org/3/${tipo}/${item.tmdb_id}?api_key=${API_KEY}&language=es-ES`);
                 const data = await res.json();
+                
+                let etiqueta = "";
+                if (ESPECIALES.some(e => e.nombre === item.nombre)) etiqueta = "3 PARTES";
+                else if (PELICULAS.some(p => p.nombre === item.nombre)) etiqueta = "1 PELÍCULA";
+                else etiqueta = `${item.videos.length} EPISODIOS`;
+
                 const card = document.createElement('div');
                 card.className = 'card-container';
                 card.innerHTML = `<div class="card">
                     <video class="card-video-prev" src="${item.trailer}" muted loop playsinline></video>
                     <img src="https://image.tmdb.org/t/p/w500${data.poster_path}">
-                    <div class="card-body">
-                        <b>${item.episodios.length} EPISODIOS</b>
-                        <p>${item.nombre}</p>
-                    </div>
+                    <div class="card-body"><b>${etiqueta}</b><p>${item.nombre}</p></div>
                 </div>`;
                 card.onclick = () => verInfo(item, data);
                 cat.appendChild(card);
@@ -176,7 +206,7 @@
             document.getElementById('hero-video').src = item.trailer;
             const lista = document.getElementById('lista-episodios-info');
             lista.innerHTML = '';
-            item.episodios.forEach((v, i) => {
+            item.videos.forEach((v, i) => {
                 const div = document.createElement('div');
                 div.className = 'ep-card';
                 div.innerHTML = `<span>${v.t}</span> <span>VER ▶</span>`;
@@ -191,11 +221,11 @@
         }
 
         function reproducir(idx) {
-            const ep = seleccionado.episodios[idx];
-            document.getElementById('main-iframe').src = `https://drive.google.com/file/d/${ep.id}/preview`;
+            const vid = seleccionado.videos[idx];
+            document.getElementById('main-iframe').src = `https://drive.google.com/file/d/${vid.id}/preview`;
             const listaPlayer = document.getElementById('lista-eps-player');
             listaPlayer.innerHTML = '';
-            seleccionado.episodios.forEach((v, i) => {
+            seleccionado.videos.forEach((v, i) => {
                 const div = document.createElement('div');
                 div.className = `ep-item ${i === idx ? 'active' : ''}`;
                 div.innerText = v.t;
@@ -208,13 +238,8 @@
             const m = document.getElementById('menu-episodios'); 
             m.style.display = m.style.display === 'block' ? 'none' : 'block'; 
         }
-
         function cerrarInfo() { document.getElementById('pantalla-info').style.display = 'none'; }
-        function cerrarPlayer() { 
-            document.getElementById('pantalla-player').style.display = 'none'; 
-            document.getElementById('main-iframe').src = ''; 
-        }
-
+        function cerrarPlayer() { document.getElementById('pantalla-player').style.display = 'none'; document.getElementById('main-iframe').src = ''; }
         function filtrar() {
             const q = document.querySelector('.search-box').value.toLowerCase();
             document.querySelectorAll('.card-container').forEach(c => c.style.display = c.innerText.toLowerCase().includes(q) ? 'block' : 'none');
@@ -223,4 +248,3 @@
     </script>
 </body>
 </html>
-
