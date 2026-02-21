@@ -41,7 +41,7 @@
         
         .card-video-prev { 
             position: absolute; top: 0; left: 0; width: 100%; height: 210px; 
-            object-fit: cover; opacity: 0; transition: 0.3s; z-index: 2; 
+            object-fit: cover; opacity: 0; transition: 0.2s; z-index: 2; 
             pointer-events: none; background: #000;
         }
         .card:hover .card-video-prev { opacity: 1; }
@@ -243,9 +243,15 @@
     }
 
     function abrirPlayer(idx) {
-        document.getElementById('pantalla-player').style.display = 'block';
-        reproducir(idx);
+    // Detenemos el trailer con sonido antes de entrar al cine
+    const hV = document.getElementById('hero-video');
+    if(hV) {
+        hV.pause();
+        hV.muted = true;
     }
+    document.getElementById('pantalla-player').style.display = 'block';
+    reproducir(idx);
+}
 
     function reproducir(idx) {
         const vid = seleccionado.videos[idx];
@@ -275,9 +281,11 @@
     }
 
     function cerrarPlayer() { 
-        document.getElementById('pantalla-player').style.display = 'none'; 
-        document.getElementById('main-iframe').src = ''; 
-    }
+    document.getElementById('pantalla-player').style.display = 'none'; 
+    document.getElementById('main-iframe').src = ''; 
+    const hV = document.getElementById('hero-video');
+    if(hV) hV.muted = true;
+}
 
     function filtrar() {
         const q = document.querySelector('.search-box').value.toLowerCase();
