@@ -6,7 +6,7 @@
     <title>Mi Biblioteca</title>
     <style>
         :root { --secondary: #a855f7; --aura: rgba(168, 85, 247, 0.4); }
-        * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; margin: 0; padding: 0; }
+        * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; margin: 0; padding: 0; }    
         
         body { 
             background: #000; color: white; font-family: 'Segoe UI', sans-serif; 
@@ -33,14 +33,12 @@
             position: absolute; width: 100%; height: 100%; background: #050505; border-radius: 12px; 
             transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275); cursor: pointer;
             border: 1px solid #222; overflow: hidden; display: flex; flex-direction: column;
-            /* Fix para que no salte el menu en movil */
             -webkit-touch-callout: none; user-select: none;
         }
         .card:hover { transform: scale(1.1); z-index: 100; border-color: var(--secondary); box-shadow: 0 0 20px var(--aura); }
         
         .card img { width: 100%; height: 210px; object-fit: cover; position: relative; z-index: 1; }
         
-        /* FIX VIDEO: z-index alto para que no lo tape la imagen */
         .card-video-prev { 
             position: absolute; top: 0; left: 0; width: 100%; height: 210px; 
             object-fit: cover; opacity: 0; transition: 0.3s; z-index: 2; 
@@ -74,7 +72,12 @@
         #hero-cont { position: relative; height: 45vh; width: 100%; overflow: hidden; }
         .hero-gradient { position: absolute; inset: 0; background: linear-gradient(to bottom, transparent 30%, #000 100%); z-index: 1; }
         #hero-video { width: 100%; height: 100%; object-fit: cover; }
+        
         .info-content { padding: 0 8% 50px; position: relative; z-index: 2; margin-top: -30px; }
+        
+        /* FIX: Separación del título */
+        #info-titulo { font-size: 28px; margin-bottom: 20px; display: block; }
+
         .lista-info { margin-top: 25px; display: grid; gap: 10px; }
         .ep-card { background: #111; padding: 15px; border-radius: 10px; border-left: 4px solid var(--secondary); cursor: pointer; display: flex; justify-content: space-between; align-items: center; }
         .btn-big { background: var(--secondary); color: white; border: none; padding: 16px; border-radius: 12px; width: 100%; font-weight: bold; margin-bottom: 10px; cursor: pointer; }
@@ -94,11 +97,14 @@
 </div>
 
 <div id="pantalla-info" class="pantalla-full">
-    <div id="hero-cont"><div class="hero-gradient"></div><video id="hero-video" autoplay muted loop playsinline></video></div>
+    <div id="hero-cont">
+        <div class="hero-gradient"></div>
+        <video id="hero-video" loop playsinline></video>
+    </div>
     <div class="info-content">
-        <h1 id="info-titulo" style="font-size: 28px;"></h1>
-        <p id="info-desc" style="color:#bbb; margin-bottom: 25px; line-height: 1.4;"></p>
-        <button class="btn-big" onclick="abrirPlayer(0)">▶ REPRODUCIR</button>
+        <h1 id="info-titulo"></h1>
+        <p id="info-desc" style="color:#bbb; line-height: 1.4;"></p>
+        <button class="btn-big" style="margin-top:25px;" onclick="abrirPlayer(0)">▶ REPRODUCIR</button>
         <button class="btn-big" onclick="cerrarInfo()" style="background:#222;">VOLVER</button>
         <h3 id="etiqueta-lista" style="margin-top: 35px; color: var(--secondary);">CONTENIDO</h3>
         <div id="lista-episodios-info" class="lista-info"></div>
@@ -108,19 +114,20 @@
 <div id="pantalla-player">
     <button class="btn-ui-player btn-close" onclick="cerrarPlayer()">✕ SALIR</button>
     <button class="btn-ui-player btn-list" onclick="toggleEps()">LISTA ☰</button>
-    <div class="video-container"><iframe id="main-iframe" allow="autoplay; fullscreen; picture-in-picture" allowfullscreen></iframe></div>
+    <div class="video-container">
+        <iframe id="main-iframe" allow="autoplay; fullscreen; picture-in-picture" allowfullscreen></iframe>
+    </div>
     <div id="menu-episodios"><div id="lista-eps-player"></div></div>
 </div>
 
 <script>
     const API_KEY = '6de1162b511f00bd38d39d7eb38396e9';
 
-    // --- SECCIÓN: SERIES ---
     const SERIES = [
         {
             nombre: "Fullmetal Alchemist",
             tmdb_id: "37863",
-            trailer: "Biblioteca.mp4",
+            trailer: "Fullmetal Alchemist 2003 IMDb.mp4",
             videos: [
                 { t: "Episodio 1", id: "1H05vvUGWykQ6tnuApYV6EOEREVf4Kkqa" },
                 { t: "Episodio 2", id: "ID_DRIVE" },
@@ -129,41 +136,39 @@
         {
             nombre: "Fullmetal Alchemist Brotherhood",
             tmdb_id: "31911",
-            trailer: "https://vjs.zencdn.net/v/oceans.mp4",
+            trailer: "Fullmetal Alchemist Brotherhood - Fullmetal Alchemist Brotherhood The Complete Series Part 1 IMDb.mp4",
             videos: [
                 { t: "Episodio 1", id: "ID_DRIVE" },
             ]
         }
     ];
 
-    // --- SECCIÓN: PELÍCULAS ---
     const PELICULAS = [
         {
             nombre: "Your Name",
             tmdb_id: "372058",
-            trailer: "https://vjs.zencdn.net/v/oceans.mp4",
+            trailer: "Your Name - Tráiler español doblado - Vídeo Dailymotion (1).mp4",
             videos: [{ t: "Película Completa", id: "ID_DRIVE" }]
         },
         {
             nombre: "El jardín de las palabras",
             tmdb_id: "198375",
-            trailer: "https://vjs.zencdn.net/v/oceans.mp4",
+            trailer: "El Jardín De Las Palabras - The Garden of Words IMDb.mp4",
             videos: [{ t: "Película Completa", id: "ID_DRIVE" }]
         },
         {
             nombre: "Perfect Blue",
             tmdb_id: "10494",
-            trailer: "https://vjs.zencdn.net/v/oceans.mp4",
+            trailer: "Perfect Blue - Official Trailer IMDb.mp4",
             videos: [{ t: "Película Completa", id: "ID_DRIVE" }]
         }
     ];
 
-    // --- SECCIÓN: ESPECIALES ---
     const ESPECIALES = [
         {
             nombre: "Made in Abyss",
             tmdb_id: "72636",
-            trailer: "https://vjs.zencdn.net/v/oceans.mp4",
+            trailer: "Made in Abyss - Trailer [English DUB] IMDb.mp4",
             videos: [
                 { t: "Parte 1", id: "ID_DRIVE" },
                 { t: "Parte 2", id: "ID_DRIVE" },
@@ -177,7 +182,7 @@
 
     async function cargar() {
         const cat = document.getElementById('catalogo');
-        cat.innerHTML = ''; // Limpiar por si acaso
+        cat.innerHTML = ''; 
         
         for (let item of DATABASE) {
             const tipo = PELICULAS.some(p => p.nombre === item.nombre) ? "movie" : "tv";
@@ -193,24 +198,17 @@
             card.className = 'card-container';
             card.innerHTML = `
                 <div class="card">
-                    <video class="card-video-prev" muted loop playsinline preload="metadata">
-                        <source src="${item.trailer}" type="video/mp4">
-                    </video>
+                    <video class="card-video-prev" muted loop playsinline><source src="${item.trailer}" type="video/mp4"></video>
                     <img src="https://image.tmdb.org/t/p/w500${data.poster_path}">
                     <div class="card-body"><b>${etiqueta}</b><p>${item.nombre}</p></div>
                 </div>`;
 
             const v = card.querySelector('.card-video-prev');
-
-            // --- LÓGICA DE REPRODUCCIÓN ---
             const playV = () => { if(v) v.play().catch(()=>{}); };
             const stopV = () => { if(v) { v.pause(); v.currentTime = 0; } };
 
-            // PC
             card.onmouseenter = playV;
             card.onmouseleave = stopV;
-
-            // MÓVIL (Touch)
             card.addEventListener('touchstart', playV, {passive: true});
             card.addEventListener('touchend', stopV, {passive: true});
 
@@ -221,11 +219,17 @@
 
     function verInfo(item, data) {
         seleccionado = item;
+        const v = document.getElementById('hero-video');
         document.getElementById('pantalla-info').style.display = 'block';
         document.getElementById('info-titulo').innerText = item.nombre;
         document.getElementById('info-desc').innerText = data.overview;
-        document.getElementById('hero-video').src = item.trailer;
-        document.getElementById('hero-video').play(); // Iniciar video de fondo
+        
+        v.src = item.trailer;
+        v.muted = false; // Activar sonido
+        v.play().catch(() => {
+            v.muted = true; // Fallback por si el navegador bloquea
+            v.play();
+        });
         
         const lista = document.getElementById('lista-episodios-info');
         lista.innerHTML = '';
@@ -261,14 +265,20 @@
         const m = document.getElementById('menu-episodios'); 
         m.style.display = m.style.display === 'block' ? 'none' : 'block'; 
     }
+
     function cerrarInfo() { 
+        const v = document.getElementById('hero-video');
         document.getElementById('pantalla-info').style.display = 'none'; 
-        document.getElementById('hero-video').pause();
+        v.pause();
+        v.src = "";
+        v.muted = true; // Asegurar silencio al salir
     }
+
     function cerrarPlayer() { 
         document.getElementById('pantalla-player').style.display = 'none'; 
         document.getElementById('main-iframe').src = ''; 
     }
+
     function filtrar() {
         const q = document.querySelector('.search-box').value.toLowerCase();
         document.querySelectorAll('.card-container').forEach(c => {
@@ -279,5 +289,3 @@
 </script>
 </body>
 </html>
-
-
