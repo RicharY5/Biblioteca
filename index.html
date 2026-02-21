@@ -6,7 +6,7 @@
     <title>Mi Biblioteca</title>
     <style>
         :root { --secondary: #a855f7; --aura: rgba(168, 85, 247, 0.4); }
-        * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; margin: 0; padding: 0; }    
+        * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; margin: 0; padding: 0; }
         
         body { 
             background: #000; color: white; font-family: 'Segoe UI', sans-serif; 
@@ -39,12 +39,8 @@
         
         .card img { width: 100%; height: 210px; object-fit: cover; position: relative; z-index: 1; }
         
-        .card-video-prev { 
-            position: absolute; top: 0; left: 0; width: 100%; height: 210px; 
-            object-fit: cover; opacity: 0; transition: 0.2s; z-index: 2; 
-            pointer-events: none; background: #000;
-        }
-        .card:hover .card-video-prev { opacity: 1; }
+        /* Se mantiene el estilo por si acaso, pero ya no habrá video en las cartas */
+        .card-video-prev { display: none; }
 
         .card-body { padding: 10px; background: #050505; flex-grow: 1; pointer-events: none; }
         .card-body b { font-size: 10px; color: var(--secondary); text-transform: uppercase; }
@@ -59,7 +55,8 @@
             padding: 10px 18px; border-radius: 8px; font-weight: bold; cursor: pointer;
         }
         .btn-close { left: 15px; }
-        .btn-list { right: 80px; }
+        .btn-list { right: 85px; } /* Movido un poco más al centro */
+
         #menu-episodios { 
             position: fixed; right: 15px; top: 75px; width: 260px; max-height: 60vh;
             background: #0a0a0a; border: 2px solid var(--secondary); border-radius: 12px;
@@ -75,7 +72,6 @@
         
         .info-content { padding: 0 8% 50px; position: relative; z-index: 2; margin-top: -30px; }
         
-        /* FIX: Separación del título */
         #info-titulo { font-size: 28px; margin-bottom: 20px; display: block; }
 
         .lista-info { margin-top: 25px; display: grid; gap: 10px; }
@@ -198,19 +194,12 @@
             card.className = 'card-container';
             card.innerHTML = `
                 <div class="card">
-                    <video class="card-video-prev" muted loop playsinline><source src="${item.trailer}" type="video/mp4"></video>
                     <img src="https://image.tmdb.org/t/p/w500${data.poster_path}">
-                    <div class="card-body"><b>${etiqueta}</b><p>${item.nombre}</p></div>
+                    <div class="card-body">
+                        <b>${etiqueta}</b>
+                        <p>${item.nombre}</p>
+                    </div>
                 </div>`;
-
-            const v = card.querySelector('.card-video-prev');
-            const playV = () => { if(v) v.play().catch(()=>{}); };
-            const stopV = () => { if(v) { v.pause(); v.currentTime = 0; } };
-
-            card.onmouseenter = playV;
-            card.onmouseleave = stopV;
-            card.addEventListener('touchstart', playV, {passive: true});
-            card.addEventListener('touchend', stopV, {passive: true});
 
             card.onclick = () => verInfo(item, data);
             cat.appendChild(card);
@@ -225,9 +214,9 @@
         document.getElementById('info-desc').innerText = data.overview;
         
         v.src = item.trailer;
-        v.muted = false; // Activar sonido
+        v.muted = false; 
         v.play().catch(() => {
-            v.muted = true; // Fallback por si el navegador bloquea
+            v.muted = true; 
             v.play();
         });
         
@@ -243,15 +232,14 @@
     }
 
     function abrirPlayer(idx) {
-    // Detenemos el trailer con sonido antes de entrar al cine
-    const hV = document.getElementById('hero-video');
-    if(hV) {
-        hV.pause();
-        hV.muted = true;
+        const hV = document.getElementById('hero-video');
+        if(hV) {
+            hV.pause();
+            hV.muted = true;
+        }
+        document.getElementById('pantalla-player').style.display = 'block';
+        reproducir(idx);
     }
-    document.getElementById('pantalla-player').style.display = 'block';
-    reproducir(idx);
-}
 
     function reproducir(idx) {
         const vid = seleccionado.videos[idx];
@@ -277,27 +265,21 @@
         document.getElementById('pantalla-info').style.display = 'none'; 
         v.pause();
         v.src = "";
-        v.muted = true; // Asegurar silencio al salir
+        v.muted = true;
     }
 
     function cerrarPlayer() { 
-    // 1. Cerramos la pantalla del reproductor
-    document.getElementById('pantalla-player').style.display = 'none'; 
-    
-    // 2. Limpiamos el iframe para que la película deje de cargar/sonar
-    document.getElementById('main-iframe').src = ''; 
-    
-    // 3. ¡EL FIX! Buscamos el video de fondo y lo ponemos a andar otra vez
-    const v = document.getElementById('hero-video');
-    if(v) {
-        v.muted = false; // Le devolvemos el sonido
-        v.play().catch(() => { 
-            // Si el navegador se pone payaso, lo reproducimos sin sonido
-            v.muted = true; 
-            v.play(); 
-        });
+        document.getElementById('pantalla-player').style.display = 'none'; 
+        document.getElementById('main-iframe').src = ''; 
+        const v = document.getElementById('hero-video');
+        if(v) {
+            v.muted = false; 
+            v.play().catch(() => { 
+                v.muted = true; 
+                v.play(); 
+            });
+        }
     }
-}
 
     function filtrar() {
         const q = document.querySelector('.search-box').value.toLowerCase();
@@ -309,5 +291,3 @@
 </script>
 </body>
 </html>
-
-
