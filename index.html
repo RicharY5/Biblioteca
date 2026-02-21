@@ -281,10 +281,22 @@
     }
 
     function cerrarPlayer() { 
+    // 1. Cerramos la pantalla del reproductor
     document.getElementById('pantalla-player').style.display = 'none'; 
+    
+    // 2. Limpiamos el iframe para que la película deje de cargar/sonar
     document.getElementById('main-iframe').src = ''; 
-    const hV = document.getElementById('hero-video');
-    if(hV) hV.muted = true;
+    
+    // 3. ¡EL FIX! Buscamos el video de fondo y lo ponemos a andar otra vez
+    const v = document.getElementById('hero-video');
+    if(v) {
+        v.muted = false; // Le devolvemos el sonido
+        v.play().catch(() => { 
+            // Si el navegador se pone payaso, lo reproducimos sin sonido
+            v.muted = true; 
+            v.play(); 
+        });
+    }
 }
 
     function filtrar() {
@@ -297,4 +309,5 @@
 </script>
 </body>
 </html>
+
 
