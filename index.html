@@ -23,15 +23,25 @@
             display: flex; align-items: center; justify-content: space-between; border-bottom: 2px solid var(--secondary); 
         }
 
-        /* Estilo para el nuevo botón de advertencia */
+        /* Botón de Advertencia */
         .btn-warning {
-            background: rgba(168, 85, 247, 0.1); border: 1px solid var(--secondary); color: #ffcc00;
+            background: rgba(168, 85, 247, 0.1); border: 1.5px solid var(--secondary); color: #ffcc00;
             border-radius: 8px; width: 40px; height: 40px; font-weight: bold; font-size: 20px;
-            cursor: pointer; margin-right: 10px; display: flex; align-items: center; justify-content: center;
+            cursor: pointer; margin-right: 12px; display: flex; align-items: center; justify-content: center;
         }
 
         .search-box { background: rgba(255,255,255,0.1); border: 1px solid var(--secondary); border-radius: 8px; padding: 10px 15px; color: white; outline: none; width: 50%; }
 
+        /* Estilos de la nueva ventana de pasos */
+        .pantalla-pasos {
+            display: none; position: fixed; inset: 0; background: #000; z-index: 7000;
+            padding: 40px 10%; text-align: center; overflow-y: auto;
+        }
+        .pasos-container { max-width: 500px; margin: 0 auto; }
+        .paso-item { background: #111; padding: 20px; border-radius: 12px; border: 1px solid #333; margin-bottom: 15px; text-align: left; }
+        .paso-numero { color: var(--secondary); font-weight: bold; margin-right: 10px; }
+
+        /* --- Resto del diseño original --- */
         .contenedor { 
             display: grid; grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); 
             gap: 40px 20px; padding: 40px 5% 80px; position: relative; z-index: 10;
@@ -44,12 +54,23 @@
             -webkit-touch-callout: none; user-select: none;
         }
         .card:hover { transform: scale(1.1); z-index: 100; border-color: var(--secondary); box-shadow: 0 0 20px var(--aura); }
-        
         .card img { width: 100%; height: 210px; object-fit: cover; position: relative; z-index: 1; }
-
         .card-body { padding: 10px; background: #050505; flex-grow: 1; pointer-events: none; }
         .card-body b { font-size: 10px; color: var(--secondary); text-transform: uppercase; }
         .card-body p { font-size: 13px; font-weight: bold; margin-top: 4px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+
+        /* Pantalla de información mejorada para evitar transparencia */
+        .pantalla-full { display: none; position: fixed; inset: 0; background: #000; z-index: 6000; overflow-y: auto; }
+        #hero-cont { position: relative; height: 45vh; width: 100%; overflow: hidden; }
+        @media (min-width: 1024px) { #hero-cont { height: 65vh; } } 
+        .hero-gradient { position: absolute; inset: 0; background: linear-gradient(to bottom, transparent 30%, #000 100%); z-index: 1; }
+        #hero-video { width: 100%; height: 100%; object-fit: cover; }
+        .info-content { padding: 0 8% 50px; position: relative; z-index: 2; margin-top: -30px; }
+        #info-titulo { font-size: 28px; margin-bottom: 8px; display: block; }
+        .info-meta { color: var(--secondary); font-weight: bold; margin-bottom: 15px; font-size: 14px; text-transform: uppercase; }
+        .lista-info { margin-top: 25px; display: grid; gap: 10px; }
+        .ep-card { background: #111; padding: 15px; border-radius: 10px; border-left: 4px solid var(--secondary); cursor: pointer; display: flex; justify-content: space-between; align-items: center; }
+        .btn-big { background: var(--secondary); color: white; border: none; padding: 16px; border-radius: 12px; width: 100%; font-weight: bold; margin-bottom: 10px; cursor: pointer; }
 
         #pantalla-player { display: none; position: fixed; inset: 0; background: #000; z-index: 8000; height: 100dvh; width: 100vw; }
         .video-container { position: absolute; inset: 0; z-index: 1; pointer-events: auto; }
@@ -61,7 +82,6 @@
         }
         .btn-close { left: 15px; }
         .btn-list { right: 85px; }
-
         #menu-episodios { 
             position: fixed; right: 15px; top: 75px; width: 260px; max-height: 60vh;
             background: #0a0a0a; border: 2px solid var(--secondary); border-radius: 12px;
@@ -69,24 +89,6 @@
         }
         .ep-item { padding: 12px; border-bottom: 1px solid #222; cursor: pointer; font-size: 13px; }
         .ep-item.active { background: var(--secondary); color: white; border-radius: 6px; }
-
-        /* CORRECCIÓN: Pantalla opaca para evitar que se vea el menú inicial de fondo */
-        .pantalla-full { display: none; position: fixed; inset: 0; background: #000; z-index: 6000; overflow-y: auto; }
-        
-        #hero-cont { position: relative; height: 45vh; width: 100%; overflow: hidden; }
-        @media (min-width: 1024px) { #hero-cont { height: 65vh; } } 
-
-        .hero-gradient { position: absolute; inset: 0; background: linear-gradient(to bottom, transparent 30%, #000 100%); z-index: 1; }
-        #hero-video { width: 100%; height: 100%; object-fit: cover; }
-        
-        .info-content { padding: 0 8% 50px; position: relative; z-index: 2; margin-top: -30px; }
-        #info-titulo { font-size: 28px; margin-bottom: 8px; display: block; }
-
-        .info-meta { color: var(--secondary); font-weight: bold; margin-bottom: 15px; font-size: 14px; text-transform: uppercase; }
-
-        .lista-info { margin-top: 25px; display: grid; gap: 10px; }
-        .ep-card { background: #111; padding: 15px; border-radius: 10px; border-left: 4px solid var(--secondary); cursor: pointer; display: flex; justify-content: space-between; align-items: center; }
-        .btn-big { background: var(--secondary); color: white; border: none; padding: 16px; border-radius: 12px; width: 100%; font-weight: bold; margin-bottom: 10px; cursor: pointer; }
     </style>
 </head>
 <body>
@@ -94,11 +96,30 @@
 <video autoplay muted loop playsinline id="bg-video-main"><source src="Biblioteca.mp4" type="video/mp4"></video>
 <div class="aura-overlay"></div>
 
+<div id="pantalla-pasos" class="pantalla-pasos">
+    <div class="pasos-container">
+        <h1 style="color:#ffcc00; margin-bottom: 10px;">⚠ ATENCIÓN</h1>
+        <p style="color:#bbb; margin-bottom: 30px;">Para que el reproductor se centre correctamente y no haya errores visuales en móvil, sigue estos pasos:</p>
+        
+        <div class="paso-item">
+            <span class="paso-numero">01</span> Toca los <b>tres puntos (⋮)</b> o el icono <b>"AA"</b> en la esquina de tu navegador.
+        </div>
+        <div class="paso-item">
+            <span class="paso-numero">02</span> Busca la opción que dice <b>"Sitio para computadoras"</b> o <b>"Versión para escritorio"</b>.
+        </div>
+        <div class="paso-item">
+            <span class="paso-numero">03</span> Activa la casilla y disfruta de la mejor experiencia.
+        </div>
+
+        <button class="btn-big" onclick="cerrarPasos()">ENTENDIDO, VOLVER</button>
+    </div>
+</div>
+
 <div id="home">
     <div class="header">
         <h1 style="font-size: 18px;">MI <span style="color:var(--secondary)">BIBLIOTECA</span></h1>
         <div style="display: flex; align-items: center; justify-content: flex-end; width: 60%;">
-            <button class="btn-warning" onclick="alert('Para una mejor experiencia en móviles, activa el Modo Escritorio en los ajustes de tu navegador.')">⚠</button>
+            <button class="btn-warning" onclick="abrirPasos()">⚠</button>
             <input type="text" class="search-box" style="width: 100%;" placeholder="Buscar título..." onkeyup="filtrar()">
         </div>
     </div>
@@ -242,9 +263,12 @@
         }
     ];
 
-
     const DATABASE = [...SERIES, ...PELICULAS, ...ESPECIALES];
     let seleccionado = null;
+
+    // Funciones de la nueva ventana
+    function abrirPasos() { document.getElementById('pantalla-pasos').style.display = 'block'; }
+    function cerrarPasos() { document.getElementById('pantalla-pasos').style.display = 'none'; }
 
     async function cargar() {
         const cat = document.getElementById('catalogo');
@@ -268,15 +292,10 @@
         document.getElementById('pantalla-info').style.display = 'block';
         document.getElementById('info-titulo').innerText = item.nombre;
         document.getElementById('info-desc').innerText = data.overview;
-        
         const anio = (data.release_date || data.first_air_date || "").substring(0, 4);
         const generos = data.genres ? data.genres.slice(0, 3).map(g => g.name).join(' • ') : "Anime";
         document.getElementById('info-meta').innerText = `${anio} | ${generos}`;
-
-        v.src = item.trailer;
-        v.muted = false; 
-        v.play().catch(() => { v.muted = true; v.play(); });
-        
+        v.src = item.trailer; v.muted = false; v.play().catch(() => { v.muted = true; v.play(); });
         const lista = document.getElementById('lista-episodios-info');
         lista.innerHTML = '';
         item.videos.forEach((v, i) => {
@@ -326,10 +345,7 @@
         document.getElementById('pantalla-player').style.display = 'none'; 
         document.getElementById('main-iframe').src = ''; 
         const v = document.getElementById('hero-video');
-        if(v) {
-            v.muted = false; 
-            v.play().catch(() => { v.muted = true; v.play(); });
-        }
+        if(v) { v.muted = false; v.play().catch(() => { v.muted = true; v.play(); }); }
     }
 
     function filtrar() {
