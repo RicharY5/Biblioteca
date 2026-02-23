@@ -315,6 +315,7 @@
     }
 
     function abrirPlayer(idx) {
+          document.getElementById('viewport-meta').setAttribute('content', 'width=1280, initial-scale=1');
         const hV = document.getElementById('hero-video');
         if(hV) { hV.pause(); hV.muted = true; }
         document.getElementById('pantalla-player').style.display = 'block';
@@ -348,6 +349,7 @@
     }
 
     function cerrarPlayer() { 
+        document.getElementById('viewport-meta').setAttribute('content','width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover');
         document.getElementById('pantalla-player').style.display = 'none'; 
         document.getElementById('main-iframe').src = ''; 
         const v = document.getElementById('hero-video');
@@ -364,6 +366,7 @@
 </script>
 </body>
 </html>
+
 
 
 
