@@ -70,7 +70,11 @@
         .ep-card { background: #111; padding: 15px; border-radius: 10px; border-left: 4px solid var(--secondary); cursor: pointer; display: flex; justify-content: space-between; align-items: center; }
         .btn-big { background: var(--secondary); color: white; border: none; padding: 16px; border-radius: 12px; width: 100%; font-weight: bold; margin-bottom: 10px; cursor: pointer; }
 
-        #pantalla-player { display: none; position: fixed; inset: 0; background: #000; z-index: 8000; height: 100dvh; width: 100vw; }
+        /* FIX APLICADO AQUÍ: overflow: hidden y overscroll-behavior */
+        #pantalla-player { 
+            display: none; position: fixed; inset: 0; background: #000; z-index: 8000; 
+            height: 100dvh; width: 100vw; overflow: hidden; overscroll-behavior: none; 
+        }
         .video-container {  position: absolute;
     inset: 0;
     z-index: 1;
@@ -113,7 +117,7 @@
         <p style="color:#bbb; margin-bottom: 30px;">Para que el reproductor se centre correctamente y no haya errores visuales en móvil, sigue estos pasos:</p>
         
         <div class="paso-item">
-            <span class="paso-numero">01</span> Toca los <b>tres puntos (⋮)</b> o el icono <b>"AA"</b> en la esquina de tu navegador.
+            <span class="paso-numero">01</span> Toca los <b>tres puntos (⋮)</b> o el icono <b>"AA"</b> en la navegador.
         </div>
         <div class="paso-item">
             <span class="paso-numero">02</span> Busca la opción que dice <b>"Sitio para computadoras"</b> o <b>"Versión para escritorio"</b>.
@@ -277,7 +281,6 @@
     const DATABASE = [...SERIES, ...PELICULAS, ...ESPECIALES];
     let seleccionado = null;
 
-    // Funciones de la nueva ventana
     function abrirPasos() { document.getElementById('pantalla-pasos').style.display = 'block'; }
     function cerrarPasos() { document.getElementById('pantalla-pasos').style.display = 'none'; }
 
@@ -367,6 +370,3 @@
 </script>
 </body>
 </html>
-
-
-
