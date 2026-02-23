@@ -71,13 +71,15 @@
         .lista-info { margin-top: 25px; display: grid; gap: 10px; }
         .ep-card { background: #111; padding: 15px; border-radius: 10px; border-left: 4px solid var(--secondary); cursor: pointer; display: flex; justify-content: space-between; align-items: center; }
         .btn-big { background: var(--secondary); color: white; border: none; padding: 16px; border-radius: 12px; width: 100%; font-weight: bold; margin-bottom: 10px; cursor: pointer; }
-        #pantalla-player { height: 100dvh; width: 100vw; }
-        .video-container { position: absolute; inset: 0; overflow: hidden; }
-        iframe {position: absolute; width: 100%; height: 100%; border: none; }
-        @media (max-width: 768px) {
-    iframe {
-        width: 100vw;
-        height: 100dvh;
+        #pantalla-player {  display: none;  position: fixed;  inset: 0;  background: #000;  z-index: 8000;  height: 100dvh;  width: 100vw; }
+        .video-container { position: absolute; inset: 0; z-index: 1; pointer-events: auto; }
+        iframe {width: 100%; height: 100%; border: none;  }
+       @media (max-width: 768px) {
+    .video-container {
+        aspect-ratio: 16 / 9;
+        margin: auto;
+        top: 0;
+        bottom: 0;
     }
 }
         .btn-ui-player {
@@ -361,6 +363,7 @@
 </script>
 </body>
 </html>
+
 
 
 
