@@ -2,117 +2,83 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <meta id="viewport-meta" name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>Mi Biblioteca</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <title>Mi Biblioteca Premium</title>
     <style>
         :root { --secondary: #a855f7; --aura: rgba(168, 85, 247, 0.4); }
         * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; margin: 0; padding: 0; }
         
         body { 
-            background: #000; color: white; font-family: 'Segoe UI', sans-serif; min-height: 100dvh; overflow-x: hidden; margin: 0;
+            background: #000; color: white; font-family: 'Segoe UI', sans-serif; min-height: 100dvh; overflow-x: hidden;
         }
 
+        /* Fondos Animados */
         #bg-video-main { position: fixed; inset: 0; width: 100%; height: 100%; z-index: -2; object-fit: cover; filter: brightness(0.3); }
         .aura-overlay { position: fixed; inset: 0; z-index: -1; background: radial-gradient(circle at center, var(--aura) 0%, transparent 75%); pointer-events: none; }
 
+        /* Header Adaptativo */
         .header { 
-            position: sticky; top: 0; width: 100%; height: 75px; padding: 0 5%; 
+            position: sticky; top: 0; width: 100%; height: 80px; padding: env(safe-area-inset-top) 5% 0; 
             background: rgba(0,0,0,0.85); backdrop-filter: blur(15px); z-index: 1000; 
             display: flex; align-items: center; justify-content: space-between; border-bottom: 2px solid var(--secondary); 
         }
 
-        /* Botón de Advertencia */
-        .btn-warning {
-            background: rgba(168, 85, 247, 0.1); border: 1.5px solid var(--secondary); color: #ffcc00;
-            border-radius: 8px; width: 40px; height: 40px; font-weight: bold; font-size: 20px;
-            cursor: pointer; margin-right: 12px; display: flex; align-items: center; justify-content: center;
-        }
+        .search-box { background: rgba(255,255,255,0.1); border: 1px solid var(--secondary); border-radius: 8px; padding: 10px 15px; color: white; outline: none; width: 60%; }
 
-        .search-box { background: rgba(255,255,255,0.1); border: 1px solid var(--secondary); border-radius: 8px; padding: 10px 15px; color: white; outline: none; width: 50%; }
-
-        /* Estilos de la nueva ventana de pasos */
-        .pantalla-pasos {
-            display: none; position: fixed; inset: 0; background: #000; z-index: 7000;
-            padding: 40px 10%; text-align: center; overflow-y: auto;
-        }
-        .pasos-container { max-width: 500px; margin: 0 auto; }
-        .paso-item { background: #111; padding: 20px; border-radius: 12px; border: 1px solid #333; margin-bottom: 15px; text-align: left; }
-        .paso-numero { color: var(--secondary); font-weight: bold; margin-right: 10px; }
-
-        /* --- Resto del diseño original --- */
+        /* Catálogo */
         .contenedor { 
             display: grid; grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); 
-            gap: 40px 20px; padding: 40px 20px 80px; position: relative; z-index: 10;
+            gap: 30px 20px; padding: 40px 20px 80px; position: relative; z-index: 10;
         }
         .card-container { width: 100%; height: 280px; position: relative; }
         .card { 
             position: absolute; width: 100%; height: 100%; background: #050505; border-radius: 12px; 
-            transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275); cursor: pointer;
-            border: 1px solid #222; overflow: hidden; display: flex; flex-direction: column;
-            -webkit-touch-callout: none; user-select: none;
+            transition: transform 0.3s ease; cursor: pointer; border: 1px solid #222; overflow: hidden;
         }
-        .card:hover { transform: scale(1.1); z-index: 100; border-color: var(--secondary); box-shadow: 0 0 20px var(--aura); }
-        .card img { width: 100%; height: 210px; object-fit: cover; position: relative; z-index: 1; }
-        .card-body { padding: 10px; background: #050505; flex-grow: 1; pointer-events: none; }
+        .card:hover { transform: scale(1.05); border-color: var(--secondary); box-shadow: 0 0 20px var(--aura); }
+        .card img { width: 100%; height: 210px; object-fit: cover; }
+        .card-body { padding: 10px; background: #050505; }
         .card-body b { font-size: 10px; color: var(--secondary); text-transform: uppercase; }
         .card-body p { font-size: 13px; font-weight: bold; margin-top: 4px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 
-        /* Pantalla de información */
-        .pantalla-full { display: none; position: fixed; inset: 0; background: #000; z-index: 6000; overflow-y: auto; }
+        /* Pantalla Detalle */
+        .pantalla-full { display: none; position: fixed; inset: 0; background: #000; z-index: 6000; overflow-y: auto; padding-bottom: 50px; }
         #hero-cont { position: relative; height: 45vh; width: 100%; overflow: hidden; }
-        @media (min-width: 1024px) { #hero-cont { height: 65vh; } } 
         .hero-gradient { position: absolute; inset: 0; background: linear-gradient(to bottom, transparent 30%, #000 100%); z-index: 1; }
         #hero-video { width: 100%; height: 100%; object-fit: cover; }
-        .info-content { padding: 0 8% 50px; position: relative; z-index: 2; margin-top: -30px; }
-        #info-titulo { font-size: 28px; margin-bottom: 8px; display: block; }
+        .info-content { padding: 0 8%; position: relative; z-index: 2; margin-top: -30px; }
         .info-meta { color: var(--secondary); font-weight: bold; margin-bottom: 15px; font-size: 14px; text-transform: uppercase; }
-        .lista-info { margin-top: 25px; display: grid; gap: 10px; }
-        .ep-card { background: #111; padding: 15px; border-radius: 10px; border-left: 4px solid var(--secondary); cursor: pointer; display: flex; justify-content: space-between; align-items: center; }
+        .ep-card { background: #111; padding: 15px; border-radius: 10px; border-left: 4px solid var(--secondary); cursor: pointer; display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; }
         .btn-big { background: var(--secondary); color: white; border: none; padding: 16px; border-radius: 12px; width: 100%; font-weight: bold; margin-bottom: 10px; cursor: pointer; }
 
-        /* REPRODUCTOR FIX: Se eliminan espacios de notch y se centra al 100% */
+        /* --- REPRODUCTOR HACKEADO PARA EL NOTCH --- */
         #pantalla-player { 
-            display: none; position: fixed; 
-            top: 0; left: 0; right: 0; bottom: 0; /* Asegura cobertura total lateral */
-            background: #000; z-index: 8000; 
-            height: 100dvh; width: 100vw; 
-            overflow: hidden; overscroll-behavior: none; 
+            display: none; position: fixed; inset: 0; background: #000; z-index: 9999; overflow: hidden; 
         }
-        .video-container { 
-            position: absolute;
-            inset: 0;
-            z-index: 1;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            background: #000;
+        /* El wrapper es más ancho que la pantalla para "comerse" el notch */
+        .video-wrapper { 
+            position: absolute; top: 50%; left: 50%; 
+            width: 108vw; height: 100dvh; 
+            transform: translate(-50%, -50%);
         }
-        iframe { 
-            width: 100% !important; 
-            height: 100% !important; 
-            border: none;
-            display: block;
+        #main-iframe { width: 100%; height: 100%; border: none; }
+
+        .btn-ui {
+            position: absolute; z-index: 10001; top: calc(15px + env(safe-area-inset-top));
+            background: rgba(0,0,0,0.7); color: white; border: 1.5px solid var(--secondary);
+            padding: 10px 18px; border-radius: 8px; font-weight: bold;
         }
-        .btn-ui-player {
-            position: absolute; top: 15px; z-index: 8010;
-            background: rgba(0,0,0,0.8); color: white; border: 1.5px solid var(--secondary);
-            padding: 10px 18px; border-radius: 8px; font-weight: bold; cursor: pointer;
-        }
-        .btn-close { left: 15px; }
-        .btn-list { right: 85px; }
+        .btn-close { left: calc(15px + env(safe-area-inset-left)); }
+        .btn-list { right: calc(15px + env(safe-area-inset-right)); }
+
         #menu-episodios { 
-            position: fixed; right: 15px; top: 75px; width: 260px; max-height: 60vh;
+            position: fixed; right: 15px; top: 80px; width: 260px; max-height: 60vh;
             background: #0a0a0a; border: 2px solid var(--secondary); border-radius: 12px;
-            z-index: 9000; padding: 10px; display: none; overflow-y: auto;
+            z-index: 10002; padding: 10px; display: none; overflow-y: auto;
         }
         .ep-item { padding: 12px; border-bottom: 1px solid #222; cursor: pointer; font-size: 13px; }
         .ep-item.active { background: var(--secondary); color: white; border-radius: 6px; }
-        
-        html, body {
-            max-width: 100%;
-            overflow-x: hidden;
-            background: #000;
-        }
+
     </style>
 </head>
 <body>
@@ -120,32 +86,10 @@
 <video autoplay muted loop playsinline id="bg-video-main"><source src="Biblioteca.mp4" type="video/mp4"></video>
 <div class="aura-overlay"></div>
 
-<div id="pantalla-pasos" class="pantalla-pasos">
-    <div class="pasos-container">
-        <h1 style="color:#ffcc00; margin-bottom: 10px;">⚠ ATENCIÓN</h1>
-        <p style="color:#bbb; margin-bottom: 30px;">Para que el reproductor se centre correctamente y no haya errores visuales en móvil, sigue estos pasos:</p>
-        
-        <div class="paso-item">
-            <span class="paso-numero">01</span> Toca los <b>tres puntos (⋮)</b> o el icono <b>"AA"</b> en la navegador.
-        </div>
-        <div class="paso-item">
-            <span class="paso-numero">02</span> Busca la opción que dice <b>"Sitio para computadoras"</b> o <b>"Versión para escritorio"</b>.
-        </div>
-        <div class="paso-item">
-            <span class="paso-numero">03</span> Activa la casilla y disfruta de la mejor experiencia.
-        </div>
-
-        <button class="btn-big" onclick="cerrarPasos()">ENTENDIDO, VOLVER</button>
-    </div>
-</div>
-
 <div id="home">
     <div class="header">
-        <h1 style="font-size: 18px;">MI <span style="color:var(--secondary)">BIBLIOTECA</span></h1>
-        <div style="display: flex; align-items: center; justify-content: flex-end; width: 60%;">
-            <button class="btn-warning" onclick="abrirPasos()">⚠</button>
-            <input type="text" class="search-box" style="width: 100%;" placeholder="Buscar título..." onkeyup="filtrar()">
-        </div>
+        <h1>MI <span style="color:var(--secondary)">BIBLIOTECA</span></h1>
+        <input type="text" class="search-box" placeholder="Buscar..." onkeyup="filtrar()">
     </div>
     <div class="contenedor" id="catalogo"></div>
 </div>
@@ -156,21 +100,21 @@
         <video id="hero-video" loop playsinline></video>
     </div>
     <div class="info-content">
-        <h1 id="info-titulo"></h1>
+        <h1 id="info-titulo" style="font-size: 28px;"></h1>
         <div id="info-meta" class="info-meta"></div> 
-        <p id="info-desc" style="color:#bbb; line-height: 1.4;"></p>
-        <button class="btn-big" style="margin-top:25px;" onclick="abrirPlayer(0)">▶ REPRODUCIR</button>
+        <p id="info-desc" style="color:#bbb; line-height: 1.4; margin-bottom: 20px;"></p>
+        <button class="btn-big" onclick="abrirPlayer(0)">▶ REPRODUCIR</button>
         <button class="btn-big" onclick="cerrarInfo()" style="background:#222;">VOLVER</button>
-        <h3 id="etiqueta-lista" style="margin-top: 35px; color: var(--secondary);">CONTENIDO</h3>
-        <div id="lista-episodios-info" class="lista-info"></div>
+        <h3 style="margin: 30px 0 15px; color: var(--secondary);">CONTENIDO</h3>
+        <div id="lista-episodios-info"></div>
     </div>
 </div>
 
 <div id="pantalla-player">
-    <button class="btn-ui-player btn-close" onclick="cerrarPlayer()">✕ SALIR</button>
-    <button class="btn-ui-player btn-list" onclick="toggleEps()">LISTA ☰</button>
-    <div class="video-container">
-        <iframe id="main-iframe" allow="autoplay; fullscreen; picture-in-picture" allowfullscreen></iframe>
+    <button class="btn-ui btn-close" onclick="cerrarPlayer()">✕ SALIR</button>
+    <button class="btn-ui btn-list" onclick="toggleEps()">LISTA ☰</button>
+    <div class="video-wrapper">
+        <iframe id="main-iframe" allow="autoplay; fullscreen" allowfullscreen></iframe>
     </div>
     <div id="menu-episodios"><div id="lista-eps-player"></div></div>
 </div>
@@ -178,168 +122,80 @@
 <script>
     const API_KEY = '6de1162b511f00bd38d39d7eb38396e9';
 
-    const SERIES = [
+    const DATABASE = [
         {
             nombre: "Fullmetal Alchemist",
             tmdb_id: "37863",
             trailer: "Fullmetal Alchemist Opening 4 _Rewrite_  _1080p60fps_.mp4",
             videos: [
                 { t: "Episodio 1", id: "1H05vvUGWykQ6tnuApYV6EOEREVf4Kkqa" },
-                { t: "Episodio 2", id: "1Dqj5yyS1hoU42x6KqCNEdnYvCYsaGfY2" },
-                { t: "Episodio 3", id: "1nCzKUkcGUQ_DTOWKybWzRuJhF8zAXI9y" },
-                { t: "Episodio 4", id: "1jiex4f2EorGMRhQMpgIJq8ShwiS8IMuY" },
-                { t: "Episodio 5", id: "16i0YG4huJPP7MhKyGdldoSOSPIVw72RR" },
-                { t: "Episodio 6", id: "1-FbpSmjrT0Pxf5BggyjJ7ejek5_WHjgr" },
-                { t: "Episodio 7", id: "12FFp2wRLfI4KG9uBu4J6oeh0q0H5pCQX" },
-                { t: "Episodio 8", id: "1kahS2MjkU77PnEz2UVgpjl6arr2xMZnm" },
-                { t: "Episodio 9", id: "1RHvSSPZ0RCpSCqX0nr2ggEVRCjOpX18L" },
-                { t: "Episodio 10", id: "1JMQWjkN_EyvSHea_u1UcqD9GUf1VZYPz" },
-                { t: "Episodio 11", id: "1onbpvwfDBCXBHc_v7aycfg2TqvNTdbNO" },
-                { t: "Episodio 12", id: "1I5HAfNKvtb37hTHIEubXLroH4SkoTFF1" },
-                { t: "Episodio 13", id: "1cCDysk_RUWRDWBMATPVhlwdi50HdfMwd" },
-                { t: "Episodio 14", id: "1UFbD0bTOQbDJU1bzi4xqEGTHQR6EOyUv" },
-                { t: "Episodio 15", id: "1NhMo7f1G7lYPCcVaJS15K8S6uZ_MRVHX" },
-                { t: "Episodio 16", id: "1iEFqnDN3RtojWo71w6C9tlpnPv9mHCZw" },
-                { t: "Episodio 17", id: "1OlsuRmxFY8pedbbdU_mZ7ixj9fD3MMg2" },
-                { t: "Episodio 18", id: "1HUVbAkVyyOCpQinHDFz3HFxci-p8DnrA" },
-                { t: "Episodio 19", id: "1VOxOLV3KPU7GDKZl8gd1m-f45jlpDBVP" },
-                { t: "Episodio 20", id: "1ospfNuDjGsoPaJJ8s20zoGV90fU7c0bW" },
-                { t: "Episodio 21", id: "1Z7-Xn2VW2vbfqkI3AboAv23Hydb2u_Cn" },
-                { t: "Episodio 22", id: "1e6MM-0MqZB_vmned4WzYjLqOUEfYE21m" },
-                { t: "Episodio 23", id: "19LXwI-mXcmC13ylQ6RpaVB2YaPFQKMOM" },
-                { t: "Episodio 24", id: "1-Rf6i_OWDz58oAGuAl698M_t14Jdd7Sg" },
-                { t: "Episodio 25", id: "1Frn1cTfqHPW3TqqW5PGehoM6yfIHQtMS" },
-                { t: "Episodio 26", id: "1way4rOQZjSBhHgQv4m288hrsYz-DDXw2" },
-                { t: "Episodio 27", id: "1Q6kkM-oPK1ZIfB3ltorhe97p7VtTWL5q" },
-                { t: "Episodio 28", id: "1J4Sh_DgWBHwAtUZQk5eZG1YIr7fKk81j" },
-                { t: "Episodio 29", id: "1n6hXCEUL-b1HVn3PkF59w6XAxCMLgAVz" },
-                { t: "Episodio 30", id: "1dmp1AO2XP83mdM47RCcd9O2hsHtDncOI" },
-                { t: "Episodio 31", id: "1LuCt2lwLA44tBGvj9mtUUEaMqmwsRG91" },
-                { t: "Episodio 32", id: "14esUOQm8oQaWxqSuQqUdmR_dJA17wI0z" },
-                { t: "Episodio 33", id: "1pt5k9y6j-55_EjmndViQFyx3BCxKeTTf" },
-                { t: "Episodio 34", id: "1vFSK_CSlxVjfTpA3VnEgOvNLYSHvd1gg" },
-                { t: "Episodio 35", id: "10PWyKWe1Ab1AJpKvf3LKybumpK4rit9z" },
-                { t: "Episodio 36", id: "1fspAMoadxuz0jn_IIBRnnkzr0m_ogawK" },
-                { t: "Episodio 37", id: "1TFOQlgK145OPJJb8qNwI9_Q7AZhefLqA" },
-                { t: "Episodio 38", id: "1dGKxqcLGOQNGx6_6_yZ4nJhBmbx3RHiz" },
-                { t: "Episodio 39", id: "1dhnfVg2sc4SXBnz1EoweMWY_OMphcG3J" },
-                { t: "Episodio 40", id: "1lnhA0folJYjlr563HtlIZygRpEG0r9Vc" },
-                { t: "Episodio 41", id: "1FMAbs3DQND0F9KxQCn35z6-EpY_09ZFV" },
-                { t: "Episodio 42", id: "1fMbnrNLFxp7NpTim5-U-EVDnXGpub0iw" },
-                { t: "Episodio 43", id: "1mmSGV30SWj0WTOdWIc7LthNc27-B4BcC" },
-                { t: "Episodio 44", id: "10R5XixeWmgvkh9O7AzeMO4qhnT1xT7uK" },
-                { t: "Episodio 45", id: "1bIWLKMloYs1P1xxyzN54_cuuXJoq0ZW5" },
-                { t: "Episodio 46", id: "1NoDnq3xcU_u7SuGArU1iRdptwKtgZTpm" },
-                { t: "Episodio 47", id: "1qudkveyPRkm9Fr1m43iYOBZUY-Bc81dp" },
-                { t: "Episodio 48", id: "1JHSWr3hxB05VFJb1y77PRvEL9hR_tLdV" },
-                { t: "Episodio 49", id: "1jS9uBZk-haYwhPJnoqaHa-XRiNrJz7uR" },
-                { t: "Episodio 50", id: "1u0yaMHkkdnN9deEzWI6sIlIQ2Y0FjAX6" },
-                { t: "Episodio 51", id: "1xsHeSpFFJGoLpYd9dGoyLVpaTf-yZPuB" },
+                { t: "Episodio 2", id: "1Dqj5yyS1hoU42x6KqCNEdnYvCYsaGfY2" }
+                // ... agrega el resto de tus IDs aquí
             ]
         },
-        {
-            nombre: "Fullmetal Alchemist Brotherhood",
-            tmdb_id: "31911",
-            trailer: "Fullmetal Alchemist Brotherhood - Fullmetal Alchemist Brotherhood The Complete Series Part 1 IMDb.mp4",
-            videos: [
-                { t: "Episodio 1", id: "ID_DRIVE" },
-            ]
-        }
-    ];
-
-    const PELICULAS = [
         {
             nombre: "Your Name",
             tmdb_id: "372058",
             trailer: "Your Name Trailer Español Latino.mp4",
             videos: [{ t: "Película Completa", id: "1YZVGxDSWUv1Kgg1h9NPeHrXbNy9PhE-R" }]
-        },
-        {
-            nombre: "El jardín de las palabras",
-            tmdb_id: "198375",
-            trailer: "El jardín de las palabras Latino Trailer.mp4",
-            videos: [{ t: "Película Completa", id: "13SS37kLvxW_kO-BRc0ymBl3ncCbOL9BX" }]
-        },
-        {
-            nombre: "Perfect Blue",
-            tmdb_id: "10494",
-            trailer: "Perfect Blue - Official Trailer IMDb.mp4",
-            videos: [{ t: "Película Completa", id: "1l7Qth1VPXlAeNB0YJtEFQyCLjyiPkrpO" }]
-        },
-        {
-            nombre: "El tiempo contigo",
-            tmdb_id: "568160",
-            trailer: "el tiempo contigo.mp4",
-            videos: [{ t: "Película Completa", id: "1cSbfnufT0COazFdCD3dWMWpdV6CkOGKO" }]
         }
+        // ... puedes pegar aquí el resto de SERIES, PELICULAS y ESPECIALES
     ];
 
-    const ESPECIALES = [
-        {
-            nombre: "Made in Abyss (Peliculas)",
-            tmdb_id: "72636",
-            trailer: "MADE IN ABYSS Official Trailer.mp4",
-            videos: [
-                { t: "El amanecer del viaje", id: "16VH8jebkRolYS2yBCm5owN80orWU11NA" },
-                { t: "El crepúsculo errante", id: "1fb_mmNZUSHsg1xYXE6X1OdtQFyDwtHwT" },
-                { t: "El amanecer del alma profunda", id: "1fBBOaL9Yo0RqUi9FLRjNIU5vegMnxggI" }
-            ]
-        }
-    ];
-
-    const DATABASE = [...SERIES, ...PELICULAS, ...ESPECIALES];
     let seleccionado = null;
-
-    function abrirPasos() { document.getElementById('pantalla-pasos').style.display = 'block'; }
-    function cerrarPasos() { document.getElementById('pantalla-pasos').style.display = 'none'; }
 
     async function cargar() {
         const cat = document.getElementById('catalogo');
         cat.innerHTML = ''; 
         for (let item of DATABASE) {
-            const tipo = PELICULAS.some(p => p.nombre === item.nombre) ? "movie" : "tv";
-            const res = await fetch(`https://api.themoviedb.org/3/${tipo}/${item.tmdb_id}?api_key=${API_KEY}&language=es-ES`);
-            const data = await res.json();
-            let etiqueta = ESPECIALES.some(e => e.nombre === item.nombre) ? "3 PARTES" : PELICULAS.some(p => p.nombre === item.nombre) ? "1 PELÍCULA" : `${item.videos.length} EPISODIOS`;
-            const card = document.createElement('div');
-            card.className = 'card-container';
-            card.innerHTML = `<div class="card"><img src="https://image.tmdb.org/t/p/w500${data.poster_path}"><div class="card-body"><b>${etiqueta}</b><p>${item.nombre}</p></div></div>`;
-            card.onclick = () => verInfo(item, data);
-            cat.appendChild(card);
+            try {
+                const tipo = item.videos.length > 1 ? "tv" : "movie";
+                const res = await fetch(`https://api.themoviedb.org/3/${tipo}/${item.tmdb_id}?api_key=${API_KEY}&language=es-ES`);
+                const data = await res.json();
+                const card = document.createElement('div');
+                card.className = 'card-container';
+                card.innerHTML = `
+                    <div class="card">
+                        <img src="https://image.tmdb.org/t/p/w500${data.poster_path}">
+                        <div class="card-body">
+                            <b>${item.videos.length} ENTREGAS</b>
+                            <p>${item.nombre}</p>
+                        </div>
+                    </div>`;
+                card.onclick = () => verInfo(item, data);
+                cat.appendChild(card);
+            } catch(e) { console.error("Error cargando item"); }
         }
     }
 
     function verInfo(item, data) {
         seleccionado = item;
-        const v = document.getElementById('hero-video');
         document.getElementById('pantalla-info').style.display = 'block';
         document.getElementById('info-titulo').innerText = item.nombre;
         document.getElementById('info-desc').innerText = data.overview;
-        const anio = (data.release_date || data.first_air_date || "").substring(0, 4);
-        const generos = data.genres ? data.genres.slice(0, 3).map(g => g.name).join(' • ') : "Anime";
-        document.getElementById('info-meta').innerText = `${anio} | ${generos}`;
-        v.src = item.trailer; v.muted = false; v.play().catch(() => { v.muted = true; v.play(); });
+        const v = document.getElementById('hero-video');
+        v.src = item.trailer; v.play();
+        
         const lista = document.getElementById('lista-episodios-info');
         lista.innerHTML = '';
-        item.videos.forEach((v, i) => {
+        item.videos.forEach((vid, i) => {
             const div = document.createElement('div');
             div.className = 'ep-card';
-            div.innerHTML = `<span>${v.t}</span> <span>VER ▶</span>`;
+            div.innerHTML = `<span>${vid.t}</span> ▶`;
             div.onclick = () => abrirPlayer(i);
             lista.appendChild(div);
         });
     }
 
-   function abrirPlayer(idx) {
-    const hV = document.getElementById('hero-video');
-    if(hV) { hV.pause(); hV.muted = true; }
-    document.getElementById('pantalla-player').style.display = 'block';
-    reproducir(idx);
-}
+    function abrirPlayer(idx) {
+        document.getElementById('pantalla-player').style.display = 'block';
+        reproducir(idx);
+    }
 
     function reproducir(idx) {
         const vid = seleccionado.videos[idx];
         document.getElementById('main-iframe').src = `https://drive.google.com/file/d/${vid.id}/preview`;
+        
         const listaPlayer = document.getElementById('lista-eps-player');
         listaPlayer.innerHTML = '';
         seleccionado.videos.forEach((v, i) => {
@@ -351,22 +207,19 @@
         });
     }
 
-    function toggleEps() { 
-        const m = document.getElementById('menu-episodios'); 
-        m.style.display = m.style.display === 'block' ? 'none' : 'block'; 
+    function cerrarPlayer() {
+        document.getElementById('pantalla-player').style.display = 'none';
+        document.getElementById('main-iframe').src = '';
     }
 
-    function cerrarInfo() { 
-        const v = document.getElementById('hero-video');
-        document.getElementById('pantalla-info').style.display = 'none'; 
-        v.pause(); v.src = ""; v.muted = true;
+    function cerrarInfo() {
+        document.getElementById('pantalla-info').style.display = 'none';
+        document.getElementById('hero-video').pause();
     }
 
-    function cerrarPlayer() { 
-        document.getElementById('pantalla-player').style.display = 'none'; 
-        document.getElementById('main-iframe').src = ''; 
-        const v = document.getElementById('hero-video');
-        if(v) { v.muted = false; v.play().catch(() => { v.muted = true; v.play(); }); }
+    function toggleEps() {
+        const m = document.getElementById('menu-episodios');
+        m.style.display = m.style.display === 'block' ? 'none' : 'block';
     }
 
     function filtrar() {
@@ -375,6 +228,7 @@
             c.style.display = c.innerText.toLowerCase().includes(q) ? 'block' : 'none';
         });
     }
+
     cargar();
 </script>
 </body>
