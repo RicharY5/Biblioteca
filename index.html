@@ -43,9 +43,18 @@
         .card-body b { font-size: 10px; color: var(--secondary); text-transform: uppercase; }
         .card-body p { font-size: 13px; font-weight: bold; margin-top: 4px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 
-        #pantalla-player { display: none; position: fixed; inset: 0; background: #000; z-index: 8000; height: 100dvh; width: 100vw; }
-        .video-container { position: absolute; inset: 0; z-index: 1; pointer-events: auto; }
-        iframe { width: 100%; height: 100%; border: none; }
+        /* FIX: MEDIDAS ABSOLUTAS SIN VW NI DVH PARA EVITAR EL DESFASE DEL VIDEO EN MÓVIL */
+        #pantalla-player { 
+            display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; 
+            background: #000; z-index: 8000; padding: 0 !important; margin: 0 !important;
+        }
+        .video-container { 
+            position: absolute; top: 0; left: 0; right: 0; bottom: 0; z-index: 1; 
+        }
+        iframe { 
+            width: 100%; height: 100%; max-width: 100%; border: none; display: block; 
+        }
+
         .btn-ui-player {
             position: absolute; top: 15px; z-index: 8010;
             background: rgba(0,0,0,0.8); color: white; border: 1.5px solid var(--secondary);
