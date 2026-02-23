@@ -71,17 +71,10 @@
         .lista-info { margin-top: 25px; display: grid; gap: 10px; }
         .ep-card { background: #111; padding: 15px; border-radius: 10px; border-left: 4px solid var(--secondary); cursor: pointer; display: flex; justify-content: space-between; align-items: center; }
         .btn-big { background: var(--secondary); color: white; border: none; padding: 16px; border-radius: 12px; width: 100%; font-weight: bold; margin-bottom: 10px; cursor: pointer; }
-        #pantalla-player {  display: none;  position: fixed;  inset: 0;  background: #000;  z-index: 8000;  height: 100dvh;  width: 100vw; }
+
+        #pantalla-player { display: none; position: fixed; inset: 0; background: #000; z-index: 8000; height: 100dvh; width: 100vw; }
         .video-container { position: absolute; inset: 0; z-index: 1; pointer-events: auto; }
-        iframe {width: 100%; height: 100%; border: none;  }
-       @media (max-width: 768px) {
-    .video-container {
-        aspect-ratio: 16 / 9;
-        margin: auto;
-        top: 0;
-        bottom: 0;
-    }
-}
+        iframe { width: 100%; height: 100%; border: none; }
         .btn-ui-player {
             position: absolute; top: 15px; z-index: 8010;
             background: rgba(0,0,0,0.8); color: white; border: 1.5px solid var(--secondary);
@@ -315,7 +308,7 @@
     }
 
     function abrirPlayer(idx) {
-          document.getElementById('viewport-meta').setAttribute('content', 'width=1280, initial-scale=1');
+        document.getElementById('viewport-meta').setAttribute('content', 'width=1280');
         const hV = document.getElementById('hero-video');
         if(hV) { hV.pause(); hV.muted = true; }
         document.getElementById('pantalla-player').style.display = 'block';
@@ -324,8 +317,7 @@
 
     function reproducir(idx) {
         const vid = seleccionado.videos[idx];
-       document.getElementById('main-iframe').src =
-`https://drive.google.com/uc?export=preview&id=${vid.id}`;
+        document.getElementById('main-iframe').src = `https://drive.google.com/file/d/${vid.id}/preview`;
         const listaPlayer = document.getElementById('lista-eps-player');
         listaPlayer.innerHTML = '';
         seleccionado.videos.forEach((v, i) => {
@@ -349,7 +341,7 @@
     }
 
     function cerrarPlayer() { 
-        document.getElementById('viewport-meta').setAttribute('content','width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover');
+        document.getElementById('viewport-meta').setAttribute('content', 'width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover');
         document.getElementById('pantalla-player').style.display = 'none'; 
         document.getElementById('main-iframe').src = ''; 
         const v = document.getElementById('hero-video');
@@ -366,11 +358,3 @@
 </script>
 </body>
 </html>
-
-
-
-
-
-
-
-
