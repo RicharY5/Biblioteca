@@ -323,7 +323,8 @@
 
     function reproducir(idx) {
         const vid = seleccionado.videos[idx];
-        document.getElementById('main-iframe').src = `https://drive.google.com/file/d/${vid.id}/preview`;
+       document.getElementById('main-iframe').src =
+`https://drive.google.com/uc?export=preview&id=${vid.id}`;
         const listaPlayer = document.getElementById('lista-eps-player');
         listaPlayer.innerHTML = '';
         seleccionado.videos.forEach((v, i) => {
@@ -363,6 +364,7 @@
 </script>
 </body>
 </html>
+
 
 
 
