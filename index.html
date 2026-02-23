@@ -33,20 +33,24 @@
             position: absolute; width: 100%; height: 100%; background: #050505; border-radius: 12px; 
             transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275); cursor: pointer;
             border: 1px solid #222; overflow: hidden; display: flex; flex-direction: column;
+            -webkit-touch-callout: none; user-select: none;
         }
         .card:hover { transform: scale(1.1); z-index: 100; border-color: var(--secondary); box-shadow: 0 0 20px var(--aura); }
-        .card img { width: 100%; height: 210px; object-fit: cover; }
-        .card-body { padding: 10px; background: #050505; flex-grow: 1; }
+        
+        .card img { width: 100%; height: 210px; object-fit: cover; position: relative; z-index: 1; }
+
+        .card-body { padding: 10px; background: #050505; flex-grow: 1; pointer-events: none; }
         .card-body b { font-size: 10px; color: var(--secondary); text-transform: uppercase; }
         .card-body p { font-size: 13px; font-weight: bold; margin-top: 4px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 
-        /* FIX: CENTRADO TOTAL DEL REPRODUCTOR */
+        /* FIX DE CENTRADO PARA MÓVIL */
         #pantalla-player { 
-            display: none; position: fixed; inset: 0; background: #000; z-index: 8000; 
+            display: none; position: fixed; 
+            top: 50%; left: 50%; transform: translate(-50%, -50%);
+            background: #000; z-index: 8000; 
             height: 100dvh; width: 100vw;
-            flex-direction: column; justify-content: center; align-items: center;
         }
-        .video-container { width: 100%; height: 100%; display: flex; justify-content: center; align-items: center; }
+        .video-container { position: absolute; inset: 0; z-index: 1; display: flex; justify-content: center; align-items: center; }
         iframe { width: 100%; height: 100%; border: none; }
 
         .btn-ui-player {
@@ -67,15 +71,17 @@
 
         .pantalla-full { display: none; position: fixed; inset: 0; background: #000; z-index: 6000; overflow-y: auto; }
         
-        /* VIDEO PREV IGUAL QUE ANTES */
+        /* VIDEO PREV COVER (COMO EL ORIGINAL) */
         #hero-cont { position: relative; height: 45vh; width: 100%; overflow: hidden; }
         @media (min-width: 1024px) { #hero-cont { height: 65vh; } } 
         #hero-video { width: 100%; height: 100%; object-fit: cover; }
         .hero-gradient { position: absolute; inset: 0; background: linear-gradient(to bottom, transparent 30%, #000 100%); z-index: 1; }
         
         .info-content { padding: 0 8% 50px; position: relative; z-index: 2; margin-top: -30px; }
-        #info-titulo { font-size: 28px; margin-bottom: 8px; }
-        .info-meta { color: var(--secondary); font-weight: bold; margin-bottom: 15px; font-size: 14px; text-transform: uppercase; }
+        #info-titulo { font-size: 28px; margin-bottom: 5px; }
+
+        /* Estilo etiquetas sin amontonar */
+        .info-meta { color: var(--secondary); font-weight: bold; margin-bottom: 15px; font-size: 14px; text-transform: uppercase; display: flex; flex-wrap: wrap; gap: 8px; }
 
         .lista-info { margin-top: 25px; display: grid; gap: 10px; }
         .ep-card { background: #111; padding: 15px; border-radius: 10px; border-left: 4px solid var(--secondary); cursor: pointer; display: flex; justify-content: space-between; align-items: center; }
@@ -102,8 +108,7 @@
     </div>
     <div class="info-content">
         <h1 id="info-titulo"></h1>
-        <div id="info-meta" class="info-meta"></div> 
-        <p id="info-desc" style="color:#bbb; line-height: 1.4;"></p>
+        <div id="info-meta" class="info-meta"></div> <p id="info-desc" style="color:#bbb; line-height: 1.4;"></p>
         <button class="btn-big" style="margin-top:25px;" onclick="abrirPlayer(0)">▶ REPRODUCIR</button>
         <button class="btn-big" onclick="cerrarInfo()" style="background:#222;">VOLVER</button>
         <h3 id="etiqueta-lista" style="margin-top: 35px; color: var(--secondary);">CONTENIDO</h3>
@@ -181,6 +186,12 @@
                 { t: "Episodio 50", id: "1u0yaMHkkdnN9deEzWI6sIlIQ2Y0FjAX6" },
                 { t: "Episodio 51", id: "1xsHeSpFFJGoLpYd9dGoyLVpaTf-yZPuB" },
             ]
+        },
+        {
+            nombre: "Fullmetal Alchemist Brotherhood",
+            tmdb_id: "31911",
+            trailer: "Fullmetal Alchemist Brotherhood - Fullmetal Alchemist Brotherhood The Complete Series Part 1 IMDb.mp4",
+            videos: [{ t: "Episodio 1", id: "ID_DRIVE" }]
         }
     ];
 
@@ -217,7 +228,7 @@
         document.getElementById('info-titulo').innerText = item.nombre;
         document.getElementById('info-desc').innerText = data.overview;
         
-        // ETIQUETAS EN ESPAÑOL
+        // ETIQUETAS EN ESPAÑOL (Acción, Aventura, etc.)
         const anio = (data.release_date || data.first_air_date || "").substring(0, 4);
         const generos = data.genres ? data.genres.slice(0, 3).map(g => g.name).join(' • ') : "Anime";
         document.getElementById('info-meta').innerText = `${anio} | ${generos}`;
@@ -237,9 +248,9 @@
     }
 
     function abrirPlayer(idx) {
-        // ACTIVAR CENTRADO Y MODO ESCRITORIO
+        // ACTIVAR MODO ESCRITORIO PARA DRIVE
         document.getElementById('viewport-meta').setAttribute('content', 'width=1280');
-        document.getElementById('pantalla-player').style.display = 'flex'; 
+        document.getElementById('pantalla-player').style.display = 'block'; 
         
         const hV = document.getElementById('hero-video');
         if(hV) { hV.pause(); hV.muted = true; }
@@ -261,7 +272,7 @@
     }
 
     function cerrarPlayer() { 
-        document.getElementById('viewport-meta').setAttribute('content', 'width=device-width, initial-scale=1.0');
+        document.getElementById('viewport-meta').setAttribute('content', 'width=device-width, initial-scale=1.0, maximum-scale=1.0');
         document.getElementById('pantalla-player').style.display = 'none'; 
         document.getElementById('main-iframe').src = ''; 
         const v = document.getElementById('hero-video');
