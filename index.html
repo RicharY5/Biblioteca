@@ -2,7 +2,7 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <meta id="viewport-meta" name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
     <title>Mi Biblioteca</title>
     <style>
         :root { --secondary: #a855f7; --aura: rgba(168, 85, 247, 0.4); }
@@ -43,23 +43,16 @@
         .card-body b { font-size: 10px; color: var(--secondary); text-transform: uppercase; }
         .card-body p { font-size: 13px; font-weight: bold; margin-top: 4px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 
-        /* FIX DE CENTRADO PARA MÓVIL */
-        #pantalla-player { 
-            display: none; position: fixed; 
-            top: 50%; left: 50%; transform: translate(-50%, -50%);
-            background: #000; z-index: 8000; 
-            height: 100dvh; width: 100vw;
-        }
-        .video-container { position: absolute; inset: 0; z-index: 1; display: flex; justify-content: center; align-items: center; }
+        #pantalla-player { display: none; position: fixed; inset: 0; background: #000; z-index: 8000; height: 100dvh; width: 100vw; }
+        .video-container { position: absolute; inset: 0; z-index: 1; pointer-events: auto; }
         iframe { width: 100%; height: 100%; border: none; }
-
         .btn-ui-player {
             position: absolute; top: 15px; z-index: 8010;
             background: rgba(0,0,0,0.8); color: white; border: 1.5px solid var(--secondary);
             padding: 10px 18px; border-radius: 8px; font-weight: bold; cursor: pointer;
         }
         .btn-close { left: 15px; }
-        .btn-list { right: 15px; }
+        .btn-list { right: 85px; }
 
         #menu-episodios { 
             position: fixed; right: 15px; top: 75px; width: 260px; max-height: 60vh;
@@ -71,17 +64,16 @@
 
         .pantalla-full { display: none; position: fixed; inset: 0; background: #000; z-index: 6000; overflow-y: auto; }
         
-        /* VIDEO PREV COVER (COMO EL ORIGINAL) */
         #hero-cont { position: relative; height: 45vh; width: 100%; overflow: hidden; }
         @media (min-width: 1024px) { #hero-cont { height: 65vh; } } 
-        #hero-video { width: 100%; height: 100%; object-fit: cover; }
+
         .hero-gradient { position: absolute; inset: 0; background: linear-gradient(to bottom, transparent 30%, #000 100%); z-index: 1; }
+        #hero-video { width: 100%; height: 100%; object-fit: cover; }
         
         .info-content { padding: 0 8% 50px; position: relative; z-index: 2; margin-top: -30px; }
-        #info-titulo { font-size: 28px; margin-bottom: 5px; }
+        #info-titulo { font-size: 28px; margin-bottom: 8px; display: block; }
 
-        /* Estilo etiquetas sin amontonar */
-        .info-meta { color: var(--secondary); font-weight: bold; margin-bottom: 15px; font-size: 14px; text-transform: uppercase; display: flex; flex-wrap: wrap; gap: 8px; }
+        .info-meta { color: var(--secondary); font-weight: bold; margin-bottom: 15px; font-size: 14px; text-transform: uppercase; }
 
         .lista-info { margin-top: 25px; display: grid; gap: 10px; }
         .ep-card { background: #111; padding: 15px; border-radius: 10px; border-left: 4px solid var(--secondary); cursor: pointer; display: flex; justify-content: space-between; align-items: center; }
@@ -108,7 +100,8 @@
     </div>
     <div class="info-content">
         <h1 id="info-titulo"></h1>
-        <div id="info-meta" class="info-meta"></div> <p id="info-desc" style="color:#bbb; line-height: 1.4;"></p>
+        <div id="info-meta" class="info-meta"></div> 
+        <p id="info-desc" style="color:#bbb; line-height: 1.4;"></p>
         <button class="btn-big" style="margin-top:25px;" onclick="abrirPlayer(0)">▶ REPRODUCIR</button>
         <button class="btn-big" onclick="cerrarInfo()" style="background:#222;">VOLVER</button>
         <h3 id="etiqueta-lista" style="margin-top: 35px; color: var(--secondary);">CONTENIDO</h3>
@@ -120,7 +113,7 @@
     <button class="btn-ui-player btn-close" onclick="cerrarPlayer()">✕ SALIR</button>
     <button class="btn-ui-player btn-list" onclick="toggleEps()">LISTA ☰</button>
     <div class="video-container">
-        <iframe id="main-iframe" allow="autoplay; fullscreen" allowfullscreen></iframe>
+        <iframe id="main-iframe" allow="autoplay; fullscreen; picture-in-picture" allowfullscreen></iframe>
     </div>
     <div id="menu-episodios"><div id="lista-eps-player"></div></div>
 </div>
@@ -196,13 +189,46 @@
     ];
 
     const PELICULAS = [
-        { nombre: "Your Name", tmdb_id: "372058", trailer: "Your Name Trailer Español Latino.mp4", videos: [{ t: "Película Completa", id: "1YZVGxDSWUv1Kgg1h9NPeHrXbNy9PhE-R" }] },
-        { nombre: "El jardín de las palabras", tmdb_id: "198375", trailer: "El jardín de las palabras Latino Trailer.mp4", videos: [{ t: "Película Completa", id: "13SS37kLvxW_kO-BRc0ymBl3ncCbOL9BX" }] },
-        { nombre: "Perfect Blue", tmdb_id: "10494", trailer: "Perfect Blue - Official Trailer IMDb.mp4", videos: [{ t: "Película Completa", id: "1l7Qth1VPXlAeNB0YJtEFQyCLjyiPkrpO" }] },
-        { nombre: "El tiempo contigo", tmdb_id: "568160", trailer: "el tiempo contigo.mp4", videos: [{ t: "Película Completa", id: "1cSbfnufT0COazFdCD3dWMWpdV6CkOGKO" }] }
+        {
+            nombre: "Your Name",
+            tmdb_id: "372058",
+            trailer: "Your Name Trailer Español Latino.mp4",
+            videos: [{ t: "Película Completa", id: "1YZVGxDSWUv1Kgg1h9NPeHrXbNy9PhE-R" }]
+        },
+        {
+            nombre: "El jardín de las palabras",
+            tmdb_id: "198375",
+            trailer: "El jardín de las palabras Latino Trailer.mp4",
+            videos: [{ t: "Película Completa", id: "13SS37kLvxW_kO-BRc0ymBl3ncCbOL9BX" }]
+        },
+        {
+            nombre: "Perfect Blue",
+            tmdb_id: "10494",
+            trailer: "Perfect Blue - Official Trailer IMDb.mp4",
+            videos: [{ t: "Película Completa", id: "1l7Qth1VPXlAeNB0YJtEFQyCLjyiPkrpO" }]
+        },
+        {
+            nombre: "El tiempo contigo",
+            tmdb_id: "568160",
+            trailer: "el tiempo contigo.mp4",
+            videos: [{ t: "Película Completa", id: "1cSbfnufT0COazFdCD3dWMWpdV6CkOGKO" }]
+        }
     ];
 
-    const DATABASE = [...SERIES, ...PELICULAS];
+    const ESPECIALES = [
+        {
+            nombre: "Made in Abyss (Peliculas)",
+            tmdb_id: "72636",
+            trailer: "MADE IN ABYSS Official Trailer.mp4",
+            videos: [
+                { t: "El amanecer del viaje", id: "16VH8jebkRolYS2yBCm5owN80orWU11NA" },
+                { t: "El crepúsculo errante", id: "1fb_mmNZUSHsg1xYXE6X1OdtQFyDwtHwT" },
+                { t: "El amanecer del alma profunda", id: "1fBBOaL9Yo0RqUi9FLRjNIU5vegMnxggI" }
+            ]
+        }
+    ];
+
+    const DATABASE = [...SERIES, ...PELICULAS, ...ESPECIALES];
     let seleccionado = null;
 
     async function cargar() {
@@ -212,7 +238,7 @@
             const tipo = PELICULAS.some(p => p.nombre === item.nombre) ? "movie" : "tv";
             const res = await fetch(`https://api.themoviedb.org/3/${tipo}/${item.tmdb_id}?api_key=${API_KEY}&language=es-ES`);
             const data = await res.json();
-            let etiqueta = PELICULAS.some(p => p.nombre === item.nombre) ? "1 PELÍCULA" : `${item.videos.length} EPISODIOS`;
+            let etiqueta = ESPECIALES.some(e => e.nombre === item.nombre) ? "3 PARTES" : PELICULAS.some(p => p.nombre === item.nombre) ? "1 PELÍCULA" : `${item.videos.length} EPISODIOS`;
             const card = document.createElement('div');
             card.className = 'card-container';
             card.innerHTML = `<div class="card"><img src="https://image.tmdb.org/t/p/w500${data.poster_path}"><div class="card-body"><b>${etiqueta}</b><p>${item.nombre}</p></div></div>`;
@@ -228,13 +254,13 @@
         document.getElementById('info-titulo').innerText = item.nombre;
         document.getElementById('info-desc').innerText = data.overview;
         
-        // ETIQUETAS EN ESPAÑOL (Acción, Aventura, etc.)
         const anio = (data.release_date || data.first_air_date || "").substring(0, 4);
         const generos = data.genres ? data.genres.slice(0, 3).map(g => g.name).join(' • ') : "Anime";
         document.getElementById('info-meta').innerText = `${anio} | ${generos}`;
 
         v.src = item.trailer;
-        v.muted = false; v.play().catch(() => { v.muted = true; v.play(); });
+        v.muted = false; 
+        v.play().catch(() => { v.muted = true; v.play(); });
         
         const lista = document.getElementById('lista-episodios-info');
         lista.innerHTML = '';
@@ -248,12 +274,9 @@
     }
 
     function abrirPlayer(idx) {
-        // ACTIVAR MODO ESCRITORIO PARA DRIVE
-        document.getElementById('viewport-meta').setAttribute('content', 'width=1280');
-        document.getElementById('pantalla-player').style.display = 'block'; 
-        
         const hV = document.getElementById('hero-video');
         if(hV) { hV.pause(); hV.muted = true; }
+        document.getElementById('pantalla-player').style.display = 'block';
         reproducir(idx);
     }
 
@@ -271,23 +294,25 @@
         });
     }
 
-    function cerrarPlayer() { 
-        document.getElementById('viewport-meta').setAttribute('content', 'width=device-width, initial-scale=1.0, maximum-scale=1.0');
-        document.getElementById('pantalla-player').style.display = 'none'; 
-        document.getElementById('main-iframe').src = ''; 
-        const v = document.getElementById('hero-video');
-        if(v) { v.muted = false; v.play(); }
-    }
-
     function toggleEps() { 
         const m = document.getElementById('menu-episodios'); 
         m.style.display = m.style.display === 'block' ? 'none' : 'block'; 
     }
 
     function cerrarInfo() { 
-        document.getElementById('pantalla-info').style.display = 'none'; 
         const v = document.getElementById('hero-video');
-        v.pause(); v.src = "";
+        document.getElementById('pantalla-info').style.display = 'none'; 
+        v.pause(); v.src = ""; v.muted = true;
+    }
+
+    function cerrarPlayer() { 
+        document.getElementById('pantalla-player').style.display = 'none'; 
+        document.getElementById('main-iframe').src = ''; 
+        const v = document.getElementById('hero-video');
+        if(v) {
+            v.muted = false; 
+            v.play().catch(() => { v.muted = true; v.play(); });
+        }
     }
 
     function filtrar() {
