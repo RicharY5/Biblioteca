@@ -2,455 +2,508 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <meta id="viewport-meta" name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>Mi Biblioteca</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <title>Nexos</title>
     <style>
-        :root { --secondary: #a855f7; --aura: rgba(168, 85, 247, 0.4); }
+        :root { --accent: #a855f7; --bg: #000; }
         * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; margin: 0; padding: 0; }
         
-        body { 
-            background: #000; color: white; font-family: 'Segoe UI', sans-serif; min-height: 100dvh; overflow-x: hidden; margin: 0;
-        }
+        html, body { max-width: 100%; overflow-x: hidden; }
+        body { background-color: var(--bg); color: white; font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif; }
+        
+        #bg-video-main { position: fixed; inset: 0; width: 100%; height: 100%; z-index: -2; object-fit: cover; filter: brightness(0.25) blur(3px); }
 
-        #bg-video-main { position: fixed; inset: 0; width: 100%; height: 100%; z-index: -2; object-fit: cover; filter: brightness(0.3); }
-        .aura-overlay { position: fixed; inset: 0; z-index: -1; background: radial-gradient(circle at center, var(--aura) 0%, transparent 75%); pointer-events: none; }
-
+        /* --- HEADER Y MENÚ --- */
         .header { 
-            position: sticky; top: 0; width: 100%; height: 75px; padding: 0 5%; 
-            background: rgba(0,0,0,0.85); backdrop-filter: blur(15px); z-index: 1000; 
-            display: flex; align-items: center; justify-content: space-between; border-bottom: 2px solid var(--secondary); 
+            position: fixed; top: 0; width: 100%; height: 70px; 
+            background: linear-gradient(to bottom, rgba(0,0,0,0.9), transparent); 
+            display: flex; align-items: center; justify-content: space-between;
+            padding: 0 4%; z-index: 1000;
         }
+        .header-left { display: flex; align-items: center; gap: 15px; }
+        .menu-icon { font-size: 28px; background: none; border: none; color: white; cursor: pointer; transition: 0.2s; }
+        .logo { font-size: 24px; font-weight: 900; color: white; text-transform: uppercase; letter-spacing: 1px; }
+        .logo span { color: var(--accent); }
 
-        /* Botón de Advertencia */
-        .btn-warning {
-            background: rgba(168, 85, 247, 0.1); border: 1.5px solid var(--secondary); color: #ffcc00;
-            border-radius: 8px; width: 40px; height: 40px; font-weight: bold; font-size: 20px;
-            cursor: pointer; margin-right: 12px; display: flex; align-items: center; justify-content: center;
-        }
+        .btn-adv { background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.3); color: white; width: 35px; height: 35px; border-radius: 50%; cursor: pointer; display: flex; align-items: center; justify-content: center; font-weight: bold; }
 
-        .search-box { background: rgba(255,255,255,0.1); border: 1px solid var(--secondary); border-radius: 8px; padding: 10px 15px; color: white; outline: none; width: 50%; }
+        .sidebar { position: fixed; top: 0; left: -100%; width: 280px; height: 100%; background: rgba(10,10,10,0.95); backdrop-filter: blur(15px); z-index: 2000; transition: 0.4s cubic-bezier(0.165, 0.84, 0.44, 1); border-right: 1px solid #222; display: flex; flex-direction: column; }
+        .sidebar.active { left: 0; }
+        .sidebar-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.8); z-index: 1999; backdrop-filter: blur(3px); }
+        .sidebar-menu { padding: 20px; display: flex; flex-direction: column; gap: 10px; }
+        .menu-item { background: transparent; color: #ccc; border: none; font-size: 16px; text-align: left; padding: 15px; border-radius: 8px; cursor: pointer; display: flex; align-items: center; gap: 15px; font-weight: bold; }
 
-        /* Estilos de la nueva ventana de pasos */
-        .pantalla-pasos {
-            display: none; position: fixed; inset: 0; background: #000; z-index: 7000;
-            padding: 40px 10%; text-align: center; overflow-y: auto;
-        }
-        .pasos-container { max-width: 500px; margin: 0 auto; }
-        .paso-item { background: #111; padding: 20px; border-radius: 12px; border: 1px solid #333; margin-bottom: 15px; text-align: left; }
-        .paso-numero { color: var(--secondary); font-weight: bold; margin-right: 10px; }
+        /* --- BUSCADOR ORIGINAL --- */
+        #search-page { display: none; position: fixed; inset: 0; background: #000; z-index: 6000; overflow-y: auto; }
+        .search-header { position: sticky; top: 0; background: rgba(0,0,0,0.95); backdrop-filter: blur(10px); padding: 15px 4%; display: flex; align-items: center; gap: 15px; border-bottom: 1px solid #222; z-index: 6100; }
+        .search-input { flex-grow: 1; background: transparent; border: none; color: white; font-size: clamp(20px, 4vw, 28px); outline: none; padding: 10px 0; }
+        .search-close { background: rgba(255,255,255,0.1); border: none; color: white; font-size: 20px; width: 40px; height: 40px; border-radius: 50%; cursor: pointer; display: flex; align-items: center; justify-content: center; }
 
-        /* --- Resto del diseño original --- */
-        .contenedor { 
-            display: grid; grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); 
-            gap: 40px 20px; padding: 40px 20px 80px; position: relative; z-index: 10;
-        }
-        .card-container { width: 100%; height: 280px; position: relative; }
-        .card { 
-            position: absolute; width: 100%; height: 100%; background: #050505; border-radius: 12px; 
-            transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275); cursor: pointer;
-            border: 1px solid #222; overflow: hidden; display: flex; flex-direction: column;
-            -webkit-touch-callout: none; user-select: none;
-        }
-        .card:hover { transform: scale(1.1); z-index: 100; border-color: var(--secondary); box-shadow: 0 0 20px var(--aura); }
-        .card img { width: 100%; height: 210px; object-fit: cover; position: relative; z-index: 1; }
-        .card-body { padding: 10px; background: #050505; flex-grow: 1; pointer-events: none; }
-        .card-body b { font-size: 10px; color: var(--secondary); text-transform: uppercase; }
-        .card-body p { font-size: 13px; font-weight: bold; margin-top: 4px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        /* --- HERO BANNER --- */
+        .hero-container { padding: 90px 4% 30px; width: 100%; max-width: 1400px; margin: 0 auto; }
+        .hero { position: relative; width: 100%; height: 75vh; border-radius: 24px; display: flex; align-items: flex-end; background: #111; overflow: hidden; box-shadow: 0 15px 40px rgba(0,0,0,0.8); }
+        .hero-video { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
+        .hero-overlay { position: absolute; inset: 0; background: linear-gradient(to top, rgba(0,0,0,1) 5%, transparent 70%); }
+        .hero-info { position: relative; z-index: 2; padding: 50px 5%; width: 100%; }
+        
+        .hero-category { color: var(--accent); font-weight: bold; margin-top: 10px; text-transform: uppercase; letter-spacing: 1px; font-size: clamp(12px, 3vw, 14px); text-shadow: 0 2px 4px rgba(0,0,0,0.8); }
+        
+        .btn-play { background: white; color: black; border: none; padding: 12px 35px; border-radius: 6px; font-weight: bold; cursor: pointer; font-size: 16px; transition: 0.2s; display: flex; align-items: center; gap: 8px; justify-content: center; }
+        
+        .mute-toggle-hero { position: absolute; right: 30px; bottom: 30px; z-index: 10; background: rgba(0,0,0,0.5); border: 1px solid white; color: white; width: 40px; height: 40px; border-radius: 50%; cursor: pointer; display: flex; align-items: center; justify-content: center; }
 
-        /* Pantalla de información mejorada para evitar transparencia */
-        .pantalla-full { display: none; position: fixed; inset: 0; background: #000; z-index: 6000; overflow-y: auto; }
-        #hero-cont { position: relative; height: 45vh; width: 100%; overflow: hidden; }
-        @media (min-width: 1024px) { #hero-cont { height: 65vh; } } 
-        .hero-gradient { position: absolute; inset: 0; background: linear-gradient(to bottom, transparent 30%, #000 100%); z-index: 1; }
-        #hero-video { width: 100%; height: 100%; object-fit: cover; }
-        .info-content { padding: 0 8% 50px; position: relative; z-index: 2; margin-top: -30px; }
-        #info-titulo { font-size: 28px; margin-bottom: 8px; display: block; }
-        .info-meta { color: var(--secondary); font-weight: bold; margin-bottom: 15px; font-size: 14px; text-transform: uppercase; }
-        .lista-info { margin-top: 25px; display: grid; gap: 10px; }
-        .ep-card { background: #111; padding: 15px; border-radius: 10px; border-left: 4px solid var(--secondary); cursor: pointer; display: flex; justify-content: space-between; align-items: center; }
-        .btn-big { background: var(--secondary); color: white; border: none; padding: 16px; border-radius: 12px; width: 100%; font-weight: bold; margin-bottom: 10px; cursor: pointer; }
+        /* --- PORTADAS CON SOMBRA --- */
+        .contenedor { display: grid; padding: 20px 4% 100px; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 15px; }
+        @media (max-width: 600px) { .contenedor { grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); } }
+        .card { position: relative; aspect-ratio: 2/3; border-radius: 8px; overflow: hidden; cursor: pointer; transition: transform 0.3s; box-shadow: 0 4px 10px rgba(0,0,0,0.5); }
+        .card:hover { transform: scale(1.05); z-index: 10; box-shadow: 0 10px 20px rgba(0,0,0,0.8); }
+        .card img { width: 100%; height: 100%; object-fit: cover; }
 
-        /* FIX APLICADO AQUÍ: overflow: hidden y overscroll-behavior */
-        #pantalla-player { 
-            display: none; position: fixed; inset: 0; background: #000; z-index: 8000; 
-            height: 100dvh; width: 100vw; overflow: hidden; overscroll-behavior: none; 
+        /* --- PÁGINA INFO --- */
+        .info-overlay { display: none; position: fixed; inset: 0; background: var(--bg); z-index: 5000; overflow-y: auto; }
+        .info-content { position: relative; min-height: 100vh; display: flex; flex-direction: column; }
+        .info-video-bg { position: absolute; top: 0; left: 0; width: 100%; height: 80vh; z-index: 0; }
+        .info-video-bg video { width: 100%; height: 100%; object-fit: cover; }
+        .info-video-bg::after { content: ''; position: absolute; inset: 0; background: linear-gradient(to top, var(--bg) 10%, transparent 100%); }
+        .info-details { position: relative; z-index: 1; margin-top: 55vh; padding: 0 5% 50px; }
+        .info-meta-row { display: flex; flex-wrap: wrap; gap: 10px; color: var(--accent); font-weight: bold; margin: 15px 0; font-size: 14px; text-transform: uppercase; text-shadow: 0 2px 4px rgba(0,0,0,0.8); }
+        
+        #modal-desc { font-size:18px; line-height:1.6; color:#ccc; width: 100%; margin: 25px 0 40px; }
+
+        .ep-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 15px; margin-top: 30px; }
+        .ep-card { background: #111; padding: 20px; border-radius: 8px; border: 1px solid #222; cursor: pointer; display: flex; justify-content: space-between; align-items: center; }
+
+        /* --- REPRODUCTOR --- */
+        #player-full { display: none; position: fixed; inset: 0; background: #000; z-index: 10000; }
+        
+        .video-container { position: absolute; inset: 0; z-index: 1; display: flex; justify-content: center; align-items: center; }
+        #main-iframe { width: 100%; height: 100%; border: none; max-width: 100vw; max-height: 100dvh; }
+        
+        .p-btn-top { position: absolute; top: 20px; z-index: 11000; background: rgba(0,0,0,0.6); color: white; border: 1px solid #444; padding: 10px 20px; border-radius: 5px; cursor: pointer; }
+        
+        /* Botón Lista y Menú Flotante del Player (Movidos al centro) */
+        .player-controls { position: absolute; top: 20px; right: 85px; z-index: 11000; display: flex; gap: 10px; }
+        .btn-lista { background: rgba(255,255,255,0.1); border: 1px solid #444; color: white; padding: 10px 20px; border-radius: 5px; cursor: pointer; font-weight: bold; }
+        
+        #player-menu-list { 
+            display: none; position: absolute; top: 75px; right: 85px; width: 280px; 
+            background: rgba(0,0,0,0.9); border: 2.5px solid var(--accent); border-radius: 15px; 
+            z-index: 11001; padding: 15px; max-height: 70vh; overflow-y: auto; 
         }
-        .video-container {  position: absolute;
-    inset: 0;
-    z-index: 1;
-    display: flex;
-    justify-content: center;
-    align-items: center; }
-        iframe {  width: 100%;
-    height: 100%;
-    border: none;
-    max-width: 100vw;
-    max-height: 100dvh; }
-        .btn-ui-player {
-            position: absolute; top: 15px; z-index: 8010;
-            background: rgba(0,0,0,0.8); color: white; border: 1.5px solid var(--secondary);
-            padding: 10px 18px; border-radius: 8px; font-weight: bold; cursor: pointer;
-        }
-        .btn-close { left: 15px; }
-        .btn-list { right: 85px; }
-        #menu-episodios { 
-            position: fixed; right: 15px; top: 75px; width: 260px; max-height: 60vh;
-            background: #0a0a0a; border: 2px solid var(--secondary); border-radius: 12px;
-            z-index: 9000; padding: 10px; display: none; overflow-y: auto;
-        }
-        .ep-item { padding: 12px; border-bottom: 1px solid #222; cursor: pointer; font-size: 13px; }
-        .ep-item.active { background: var(--secondary); color: white; border-radius: 6px; }
-        html, body {
-    max-width: 100%;
-    overflow-x: hidden;
-}
+        .player-menu-item { padding: 15px; border-bottom: 1px solid #222; cursor: pointer; color: white; font-size: 15px; }
+
+        /* --- ADVERTENCIA ORIGINAL --- */
+        .modal-adv { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.95); z-index: 9999; align-items: center; justify-content: center; padding: 20px; }
+        .adv-content { background: #111; border: 1px solid #333; padding: 30px; border-radius: 15px; width: 100%; max-width: 450px; text-align: center; }
+        .step { background: #1a1a1a; padding: 15px; border-radius: 10px; margin: 10px 0; text-align: left; display: flex; align-items: center; border: 1px solid #333; font-size: 14px; }
+        .step-num { color: var(--accent); font-weight: 900; font-size: 18px; margin-right: 15px; }
     </style>
 </head>
+
 <body>
+<video id="bg-video-main" autoplay muted loop playsinline src="Biblioteca.mp4"></video>
 
-<video autoplay muted loop playsinline id="bg-video-main"><source src="Biblioteca.mp4" type="video/mp4"></video>
-<div class="aura-overlay"></div>
+<div class="header">
+    <div class="header-left">
+        <button class="menu-icon" onclick="toggleMenu()">☰</button>
+        <div class="logo">N<span>exos</span></div>
+    </div>
+    <button class="btn-adv" onclick="abrirAdv()">?</button>
+</div>
 
-<div id="pantalla-pasos" class="pantalla-pasos">
-    <div class="pasos-container">
-        <h1 style="color:#ffcc00; margin-bottom: 10px;">⚠ ATENCIÓN</h1>
-        <p style="color:#bbb; margin-bottom: 30px;">Para que el reproductor se centre correctamente y no haya errores visuales en móvil, sigue estos pasos:</p>
-        
-        <div class="paso-item">
-            <span class="paso-numero">01</span> Toca los <b>tres puntos (⋮)</b> o el icono <b>"AA"</b> en la navegador.
-        </div>
-        <div class="paso-item">
-            <span class="paso-numero">02</span> Busca la opción que dice <b>"Sitio para computadoras"</b> o <b>"Versión para escritorio"</b>.
-        </div>
-        <div class="paso-item">
-            <span class="paso-numero">03</span> Activa la casilla y disfruta de la mejor experiencia.
-        </div>
+<div class="sidebar-overlay" onclick="toggleMenu()"></div>
 
-        <button class="btn-big" onclick="cerrarPasos()">ENTENDIDO, VOLVER</button>
+<div class="sidebar" id="sidebar">
+    <div class="sidebar-header" style="padding: 25px 20px; border-bottom: 1px solid #222; display: flex; justify-content: space-between; align-items: center;">
+        <div class="logo" style="font-size: 20px;">AURA<span>STREAM</span></div>
+        <button class="menu-icon" style="font-size: 24px;" onclick="toggleMenu()">✕</button>
+    </div>
+    <div class="sidebar-menu">
+        <button class="menu-item" onclick="abrirBuscador()"><span>🔍</span> Buscar títulos</button>
     </div>
 </div>
 
-<div id="home">
-    <div class="header">
-        <h1 style="font-size: 18px;">MI <span style="color:var(--secondary)">BIBLIOTECA</span></h1>
-        <div style="display: flex; align-items: center; justify-content: flex-end; width: 60%;">
-            <button class="btn-warning" onclick="abrirPasos()">⚠</button>
-            <input type="text" class="search-box" style="width: 100%;" placeholder="Buscar título..." onkeyup="filtrar()">
-        </div>
+<div id="modal-adv" class="modal-adv">
+    <div class="adv-content">
+        <h2 style="margin-bottom:10px; color: white;">SOLO PARA TELÉFONOS</h2>
+        <p style="color:#aaa; font-size:14px; margin-bottom:20px;">Si el video no se centra correctamente o se ve cortado, sigue estos pasos:</p>
+        <div class="step"><span class="step-num">01</span><span>Pulsa los <b>tres puntos (⋮)</b> o <b>"AA"</b> en tu navegador.</span></div>
+        <div class="step"><span class="step-num">02</span><span>Selecciona <b>"Sitio para computadoras"</b>.</span></div>
+        <button style="width:100%; margin-top:20px; padding:15px; background:white; color:black; font-weight:bold; border:none; border-radius:5px; cursor:pointer;" onclick="cerrarAdv()">LISTO</button>
     </div>
-    <div class="contenedor" id="catalogo"></div>
 </div>
 
-<div id="pantalla-info" class="pantalla-full">
-    <div id="hero-cont">
-        <div class="hero-gradient"></div>
-        <video id="hero-video" loop playsinline></video>
+<div id="search-page">
+    <div class="search-header">
+        <button class="search-close" onclick="cerrarBuscador()">←</button>
+        <input type="text" id="finder" class="search-input" placeholder="Buscar series, películas..." onkeyup="filtrarBuscador()">
     </div>
+    <div class="contenedor" id="resultados-busqueda" style="padding-top: 30px;"></div>
+</div>
+
+<div class="hero-container">
+    <div class="hero">
+        <video class="hero-video" id="hero-vid" autoplay muted loop playsinline src="Your Name Trailer Español Latino.mp4"></video>
+        <button class="mute-toggle-hero" id="hero-mute-btn" onclick="toggleHeroMute()">🔇</button>
+        <div class="hero-overlay"></div>
+        <div class="hero-info">
+            <h1 style="font-size: clamp(35px, 8vw, 70px); text-shadow: 0 4px 10px rgba(0,0,0,0.8);">Your Name</h1>
+            <div class="hero-category">2016 | ANIMACIÓN • ROMANCE • DRAMA</div>
+            <p style="color:#ccc; margin: 20px 0; font-size: clamp(14px, 4vw, 18px); line-height: 1.5; max-width: 800px; text-shadow: 0 2px 4px rgba(0,0,0,0.8);">Taki y Mitsuha son dos desconocidos que, a pesar de no conocerse, están destinados a encontrarse.</p>
+            <button class="btn-play" onclick="reproducir('1YZVGxDSWUv1Kgg1h9NPeHrXbNy9PhE-R')">▶ REPRODUCIR</button>
+        </div>
+    </div>
+</div>
+
+<div class="contenedor" id="catalogo"></div>
+
+<div id="info-overlay" class="info-overlay">
     <div class="info-content">
-        <h1 id="info-titulo"></h1>
-        <div id="info-meta" class="info-meta"></div> 
-        <p id="info-desc" style="color:#bbb; line-height: 1.4;"></p>
-        <button class="btn-big" style="margin-top:25px;" onclick="abrirPlayer(0)">▶ REPRODUCIR</button>
-        <button class="btn-big" onclick="cerrarInfo()" style="background:#222;">VOLVER</button>
-        <h3 id="etiqueta-lista" style="margin-top: 35px; color: var(--secondary);">CONTENIDO</h3>
-        <div id="lista-episodios-info" class="lista-info"></div>
+        <div class="info-video-bg"><video id="modal-vid" autoplay loop playsinline></video></div>
+        <div class="info-details">
+            <h1 id="modal-titulo" style="font-size: clamp(35px, 6vw, 60px); text-shadow: 0 4px 10px rgba(0,0,0,0.8);"></h1>
+            <div id="modal-meta" class="info-meta-row"></div>
+            
+            <div style="display: flex; gap: 15px; margin-top: 15px;">
+                <button class="btn-play" id="btn-play-info">▶ REPRODUCIR</button>
+                <button class="btn-play" style="background: rgba(255,255,255,0.15); color: white;" onclick="cerrarInfo()">VOLVER</button>
+            </div>
+            
+            <p id="modal-desc"></p>
+            <h3 id="label-lista" style="border-bottom: 2px solid var(--accent); display: inline-block; padding-bottom: 5px; margin-bottom: 20px;">Episodios</h3>
+            <div class="ep-grid" id="modal-list"></div>
+        </div>
     </div>
 </div>
 
-<div id="pantalla-player">
-    <button class="btn-ui-player btn-close" onclick="cerrarPlayer()">✕ SALIR</button>
-    <button class="btn-ui-player btn-list" onclick="toggleEps()">LISTA ☰</button>
-    <div class="video-container">
-        <iframe id="main-iframe" allow="autoplay; fullscreen; picture-in-picture" allowfullscreen></iframe>
+<div id="player-full">
+    <button class="p-btn-top" style="left:20px;" onclick="cerrarPlayer()">✕ SALIR</button>
+    <div class="player-controls">
+        <button class="btn-lista" onclick="togglePlayerMenu()">☰ LISTA</button>
     </div>
-    <div id="menu-episodios"><div id="lista-eps-player"></div></div>
+    <div id="player-menu-list"></div>
+    <div class="video-container">
+        <iframe id="main-iframe" allow="autoplay; fullscreen; encrypted-media; picture-in-picture" allowfullscreen></iframe>
+    </div>
 </div>
 
 <script>
     const API_KEY = '6de1162b511f00bd38d39d7eb38396e9';
 
-    const SERIES = [
-        {
-            nombre: "Fullmetal Alchemist",
-            tmdb_id: "37863",
-            trailer: "Fullmetal Alchemist Opening 4 _Rewrite_  _1080p60fps_.mp4",
-            videos: [
-                { t: "Episodio 1", id: "1H05vvUGWykQ6tnuApYV6EOEREVf4Kkqa" },
-                { t: "Episodio 2", id: "1Dqj5yyS1hoU42x6KqCNEdnYvCYsaGfY2" },
-                { t: "Episodio 3", id: "1nCzKUkcGUQ_DTOWKybWzRuJhF8zAXI9y" },
-                { t: "Episodio 4", id: "1jiex4f2EorGMRhQMpgIJq8ShwiS8IMuY" },
-                { t: "Episodio 5", id: "16i0YG4huJPP7MhKyGdldoSOSPIVw72RR" },
-                { t: "Episodio 6", id: "1-FbpSmjrT0Pxf5BggyjJ7ejek5_WHjgr" },
-                { t: "Episodio 7", id: "12FFp2wRLfI4KG9uBu4J6oeh0q0H5pCQX" },
-                { t: "Episodio 8", id: "1kahS2MjkU77PnEz2UVgpjl6arr2xMZnm" },
-                { t: "Episodio 9", id: "1RHvSSPZ0RCpSCqX0nr2ggEVRCjOpX18L" },
-                { t: "Episodio 10", id: "1JMQWjkN_EyvSHea_u1UcqD9GUf1VZYPz" },
-                { t: "Episodio 11", id: "1onbpvwfDBCXBHc_v7aycfg2TqvNTdbNO" },
-                { t: "Episodio 12", id: "1I5HAfNKvtb37hTHIEubXLroH4SkoTFF1" },
-                { t: "Episodio 13", id: "1cCDysk_RUWRDWBMATPVhlwdi50HdfMwd" },
-                { t: "Episodio 14", id: "1UFbD0bTOQbDJU1bzi4xqEGTHQR6EOyUv" },
-                { t: "Episodio 15", id: "1NhMo7f1G7lYPCcVaJS15K8S6uZ_MRVHX" },
-                { t: "Episodio 16", id: "1iEFqnDN3RtojWo71w6C9tlpnPv9mHCZw" },
-                { t: "Episodio 17", id: "1OlsuRmxFY8pedbbdU_mZ7ixj9fD3MMg2" },
-                { t: "Episodio 18", id: "1HUVbAkVyyOCpQinHDFz3HFxci-p8DnrA" },
-                { t: "Episodio 19", id: "1VOxOLV3KPU7GDKZl8gd1m-f45jlpDBVP" },
-                { t: "Episodio 20", id: "1ospfNuDjGsoPaJJ8s20zoGV90fU7c0bW" },
-                { t: "Episodio 21", id: "1Z7-Xn2VW2vbfqkI3AboAv23Hydb2u_Cn" },
-                { t: "Episodio 22", id: "1e6MM-0MqZB_vmned4WzYjLqOUEfYE21m" },
-                { t: "Episodio 23", id: "19LXwI-mXcmC13ylQ6RpaVB2YaPFQKMOM" },
-                { t: "Episodio 24", id: "1-Rf6i_OWDz58oAGuAl698M_t14Jdd7Sg" },
-                { t: "Episodio 25", id: "1Frn1cTfqHPW3TqqW5PGehoM6yfIHQtMS" },
-                { t: "Episodio 26", id: "1way4rOQZjSBhHgQv4m288hrsYz-DDXw2" },
-                { t: "Episodio 27", id: "1Q6kkM-oPK1ZIfB3ltorhe97p7VtTWL5q" },
-                { t: "Episodio 28", id: "1J4Sh_DgWBHwAtUZQk5eZG1YIr7fKk81j" },
-                { t: "Episodio 29", id: "1n6hXCEUL-b1HVn3PkF59w6XAxCMLgAVz" },
-                { t: "Episodio 30", id: "1dmp1AO2XP83mdM47RCcd9O2hsHtDncOI" },
-                { t: "Episodio 31", id: "1LuCt2lwLA44tBGvj9mtUUEaMqmwsRG91" },
-                { t: "Episodio 32", id: "14esUOQm8oQaWxqSuQqUdmR_dJA17wI0z" },
-                { t: "Episodio 33", id: "1pt5k9y6j-55_EjmndViQFyx3BCxKeTTf" },
-                { t: "Episodio 34", id: "1vFSK_CSlxVjfTpA3VnEgOvNLYSHvd1gg" },
-                { t: "Episodio 35", id: "10PWyKWe1Ab1AJpKvf3LKybumpK4rit9z" },
-                { t: "Episodio 36", id: "1fspAMoadxuz0jn_IIBRnnkzr0m_ogawK" },
-                { t: "Episodio 37", id: "1TFOQlgK145OPJJb8qNwI9_Q7AZhefLqA" },
-                { t: "Episodio 38", id: "1dGKxqcLGOQNGx6_6_yZ4nJhBmbx3RHiz" },
-                { t: "Episodio 39", id: "1dhnfVg2sc4SXBnz1EoweMWY_OMphcG3J" },
-                { t: "Episodio 40", id: "1lnhA0folJYjlr563HtlIZygRpEG0r9Vc" },
-                { t: "Episodio 41", id: "1FMAbs3DQND0F9KxQCn35z6-EpY_09ZFV" },
-                { t: "Episodio 42", id: "1fMbnrNLFxp7NpTim5-U-EVDnXGpub0iw" },
-                { t: "Episodio 43", id: "1mmSGV30SWj0WTOdWIc7LthNc27-B4BcC" },
-                { t: "Episodio 44", id: "10R5XixeWmgvkh9O7AzeMO4qhnT1xT7uK" },
-                { t: "Episodio 45", id: "1bIWLKMloYs1P1xxyzN54_cuuXJoq0ZW5" },
-                { t: "Episodio 46", id: "1NoDnq3xcU_u7SuGArU1iRdptwKtgZTpm" },
-                { t: "Episodio 47", id: "1qudkveyPRkm9Fr1m43iYOBZUY-Bc81dp" },
-                { t: "Episodio 48", id: "1JHSWr3hxB05VFJb1y77PRvEL9hR_tLdV" },
-                { t: "Episodio 49", id: "1jS9uBZk-haYwhPJnoqaHa-XRiNrJz7uR" },
-                { t: "Episodio 50", id: "1u0yaMHkkdnN9deEzWI6sIlIQ2Y0FjAX6" },
-                { t: "Episodio 51", id: "1xsHeSpFFJGoLpYd9dGoyLVpaTf-yZPuB" },
-            ]
-        },
-        {
-            nombre: "Fullmetal Alchemist Brotherhood",
-            tmdb_id: "31911",
-            trailer: "Fullmetal Alchemist Brotherhood - Fullmetal Alchemist Brotherhood The Complete Series Part 1 IMDb.mp4",
-            videos: [
-                { t: "Episodio 1", id: "1vRHpcla98upz1lP5ln6pCgHjpRReBkZR" },
-                { t: "Episodio 2", id: "132AzY3BoIlE54AQATnXQatMbf7-iypv5" },
-                { t: "Episodio 3", id: "1KWCCMLO-HB_VfXrltu2Mi2MJjFViQE3j" },
-                { t: "Episodio 4", id: "1G3a0pKbb3zrNZsZ7rjvLaIHI_1QU4ACX" },
-                { t: "Episodio 5", id: "1ydNyo9Wy1OGzNpP1T-yuepqdkJpnM8fx" },
-                { t: "Episodio 6", id: "1ASyOF8dz5jr4PAYZSfw-EsiWzmSDP0tT" },
-                { t: "Episodio 7", id: "1ploQvr9OW7bzF3GxhlBekzuHtcp9dpjT" },
-                { t: "Episodio 8", id: "1ScPT1p_CYso37qRKZANnOzgiR740d7-6" },
-                { t: "Episodio 9", id: "1To_u9aNYcsnedL8Ey9a8HYOoHxfvy3g1" },
-                { t: "Episodio 10", id: "19ZNB7vDHo-LDwbJhQfEzfgzda_lpm44V" },
-                { t: "Episodio 11", id: "1ifWN0_emoPQEa3DA2q0XjyZyEd0S3Ltx" },
-                { t: "Episodio 12", id: "1UREjykA2MwhYgMhBpTIb1nOiOsepRPOf" },
-                { t: "Episodio 13", id: "1VNJ25pLC9VJ1rv72xj0bQ95VAfx9G0lC" },
-                { t: "Episodio 14", id: "1wUopf5KassfqijzEQd2ukvhFKKruxNOv" },
-                { t: "Episodio 15", id: "1oD245OHXhXx-3sa-LHVU4i4oBp2bKPAB" },
-                { t: "Episodio 16", id: "1d648XyzIoMXaBWqnQVPU5l0DzMXujsFW" },
-                { t: "Episodio 17", id: "1iNxsMdiS4UbrrpAvhaqOZp_pXgDMcg7m" },
-                { t: "Episodio 18", id: "1ORXml3H1-Iu0XNc9i11EXALREd178cM2" },
-                { t: "Episodio 19", id: "1kp5j3NKvfx0hclivrneYeU6ZHZfv9VkM" },
-                { t: "Episodio 20", id: "" },
-                { t: "Episodio 21", id: "" },
-                { t: "Episodio 22", id: "" },
-                { t: "Episodio 23", id: "" },
-                { t: "Episodio 24", id: "" },
-                { t: "Episodio 25", id: "" },
-                { t: "Episodio 26", id: "" },
-                { t: "Episodio 27", id: "" },
-                { t: "Episodio 28", id: "" },
-                { t: "Episodio 29", id: "" },
-                { t: "Episodio 30", id: "" },
-                { t: "Episodio 31", id: "" },
-                { t: "Episodio 32", id: "" },
-                { t: "Episodio 33", id: "" },
-                { t: "Episodio 34", id: "" },
-                { t: "Episodio 35", id: "" },
-                { t: "Episodio 36", id: "" },
-                { t: "Episodio 37", id: "" },
-                { t: "Episodio 38", id: "" },
-                { t: "Episodio 39", id: "" },
-                { t: "Episodio 40", id: "" },
-                { t: "Episodio 41", id: "" },
-                { t: "Episodio 42", id: "" },
-                { t: "Episodio 43", id: "" },
-                { t: "Episodio 44", id: "" },
-                { t: "Episodio 45", id: "" },
-                { t: "Episodio 46", id: "" },
-                { t: "Episodio 47", id: "" },
-                { t: "Episodio 48", id: "" },
-                { t: "Episodio 49", id: "" },
-                { t: "Episodio 50", id: "" },
-                { t: "Episodio 51", id: "" },
-                { t: "Episodio 52", id: "" },
-                { t: "Episodio 53", id: "" },
-                { t: "Episodio 54", id: "" },
-                { t: "Episodio 55", id: "" },
-                { t: "Episodio 56", id: "" },
-                { t: "Episodio 57", id: "" },
-                { t: "Episodio 58", id: "" },
-                { t: "Episodio 59", id: "" },
-                { t: "Episodio 60", id: "" },
-                { t: "Episodio 61", id: "" },
-                { t: "Episodio 62", id: "" },
-                { t: "Episodio 63", id: "" },
-                { t: "Episodio 64", id: "" },
-            ]
-        },
-        {
-            nombre: "Takopi's Original Sin",
-            tmdb_id: "284445",
-            trailer: "Takopis Original Sin  TRÁILER OFICIAL.mp4",
-            videos: [
-                { t: "Episodio 1", id: "1RR5z6SXOq7uSwvCKo1LfPflapjr2rQxu" },
-                { t: "Episodio 2", id: "1WcVcGEHGU4EK3RuKO0nluuhHY6UaBbE2" },
-                { t: "Episodio 3", id: "1vospWG72Q61QQa-7D-1mZmKSMtaT_BR0" },
-                { t: "Episodio 4", id: "14BcmThMeEB1LMp37mTjGCfjq9nJESZ7F" },
-                { t: "Episodio 5", id: "1xYX_rDyBwbn9NcHy0bo7SyyYb0HnmdhE" },
-                { t: "Episodio 6", id: "1eI5YR4KXo9kLOtKVYP43l68MfI-Ym_uK" },
-            ]
-        }
+    // DATOS ACTUALIZADOS SEGÚN LO SOLICITADO
+    const SERIES = [        
+        {            
+            nombre: "Fullmetal Alchemist",            
+            tmdb_id: "37863",            
+            trailer: "Fullmetal Alchemist Opening 4 _Rewrite_  _1080p60fps_.mp4",            
+            videos: [                
+                { t: "Episodio 1", id: "1H05vvUGWykQ6tnuApYV6EOEREVf4Kkqa" },                
+                { t: "Episodio 2", id: "1Dqj5yyS1hoU42x6KqCNEdnYvCYsaGfY2" },                
+                { t: "Episodio 3", id: "1nCzKUkcGUQ_DTOWKybWzRuJhF8zAXI9y" },                
+                { t: "Episodio 4", id: "1jiex4f2EorGMRhQMpgIJq8ShwiS8IMuY" },                
+                { t: "Episodio 5", id: "16i0YG4huJPP7MhKyGdldoSOSPIVw72RR" },                
+                { t: "Episodio 6", id: "1-FbpSmjrT0Pxf5BggyjJ7ejek5_WHjgr" },                
+                { t: "Episodio 7", id: "12FFp2wRLfI4KG9uBu4J6oeh0q0H5pCQX" },                
+                { t: "Episodio 8", id: "1kahS2MjkU77PnEz2UVgpjl6arr2xMZnm" },                
+                { t: "Episodio 9", id: "1RHvSSPZ0RCpSCqX0nr2ggEVRCjOpX18L" },                
+                { t: "Episodio 10", id: "1JMQWjkN_EyvSHea_u1UcqD9GUf1VZYPz" },                
+                { t: "Episodio 11", id: "1onbpvwfDBCXBHc_v7aycfg2TqvNTdbNO" },                
+                { t: "Episodio 12", id: "1I5HAfNKvtb37hTHIEubXLroH4SkoTFF1" },                
+                { t: "Episodio 13", id: "1cCDysk_RUWRDWBMATPVhlwdi50HdfMwd" },                
+                { t: "Episodio 14", id: "1UFbD0bTOQbDJU1bzi4xqEGTHQR6EOyUv" },                
+                { t: "Episodio 15", id: "1NhMo7f1G7lYPCcVaJS15K8S6uZ_MRVHX" },                
+                { t: "Episodio 16", id: "1iEFqnDN3RtojWo71w6C9tlpnPv9mHCZw" },                
+                { t: "Episodio 17", id: "1OlsuRmxFY8pedbbdU_mZ7ixj9fD3MMg2" },                
+                { t: "Episodio 18", id: "1HUVbAkVyyOCpQinHDFz3HFxci-p8DnrA" },                
+                { t: "Episodio 19", id: "1VOxOLV3KPU7GDKZl8gd1m-f45jlpDBVP" },                
+                { t: "Episodio 20", id: "1ospfNuDjGsoPaJJ8s20zoGV90fU7c0bW" },                
+                { t: "Episodio 21", id: "1Z7-Xn2VW2vbfqkI3AboAv23Hydb2u_Cn" },                
+                { t: "Episodio 22", id: "1e6MM-0MqZB_vmned4WzYjLqOUEfYE21m" },                
+                { t: "Episodio 23", id: "19LXwI-mXcmC13ylQ6RpaVB2YaPFQKMOM" },                
+                { t: "Episodio 24", id: "1-Rf6i_OWDz58oAGuAl698M_t14Jdd7Sg" },                
+                { t: "Episodio 25", id: "1Frn1cTfqHPW3TqqW5PGehoM6yfIHQtMS" },                
+                { t: "Episodio 26", id: "1way4rOQZjSBhHgQv4m288hrsYz-DDXw2" },                
+                { t: "Episodio 27", id: "1Q6kkM-oPK1ZIfB3ltorhe97p7VtTWL5q" },                
+                { t: "Episodio 28", id: "1J4Sh_DgWBHwAtUZQk5eZG1YIr7fKk81j" },                
+                { t: "Episodio 29", id: "1n6hXCEUL-b1HVn3PkF59w6XAxCMLgAVz" },                
+                { t: "Episodio 30", id: "1dmp1AO2XP83mdM47RCcd9O2hsHtDncOI" },                
+                { t: "Episodio 31", id: "1LuCt2lwLA44tBGvj9mtUUEaMqmwsRG91" },                
+                { t: "Episodio 32", id: "14esUOQm8oQaWxqSuQqUdmR_dJA17wI0z" },                
+                { t: "Episodio 33", id: "1pt5k9y6j-55_EjmndViQFyx3BCxKeTTf" },                
+                { t: "Episodio 34", id: "1vFSK_CSlxVjfTpA3VnEgOvNLYSHvd1gg" },                
+                { t: "Episodio 35", id: "10PWyKWe1Ab1AJpKvf3LKybumpK4rit9z" },                
+                { t: "Episodio 36", id: "1fspAMoadxuz0jn_IIBRnnkzr0m_ogawK" },                
+                { t: "Episodio 37", id: "1TFOQlgK145OPJJb8qNwI9_Q7AZhefLqA" },                
+                { t: "Episodio 38", id: "1dGKxqcLGOQNGx6_6_yZ4nJhBmbx3RHiz" },                
+                { t: "Episodio 39", id: "1dhnfVg2sc4SXBnz1EoweMWY_OMphcG3J" },                
+                { t: "Episodio 40", id: "1lnhA0folJYjlr563HtlIZygRpEG0r9Vc" },                
+                { t: "Episodio 41", id: "1FMAbs3DQND0F9KxQCn35z6-EpY_09ZFV" },                
+                { t: "Episodio 42", id: "1fMbnrNLFxp7NpTim5-U-EVDnXGpub0iw" },                
+                { t: "Episodio 43", id: "1mmSGV30SWj0WTOdWIc7LthNc27-B4BcC" },                
+                { t: "Episodio 44", id: "10R5XixeWmgvkh9O7AzeMO4qhnT1xT7uK" },                
+                { t: "Episodio 45", id: "1bIWLKMloYs1P1xxyzN54_cuuXJoq0ZW5" },                
+                { t: "Episodio 46", id: "1NoDnq3xcU_u7SuGArU1iRdptwKtgZTpm" },                
+                { t: "Episodio 47", id: "1qudkveyPRkm9Fr1m43iYOBZUY-Bc81dp" },                
+                { t: "Episodio 48", id: "1JHSWr3hxB05VFJb1y77PRvEL9hR_tLdV" },                
+                { t: "Episodio 49", id: "1jS9uBZk-haYwhPJnoqaHa-XRiNrJz7uR" },                
+                { t: "Episodio 50", id: "1u0yaMHkkdnN9deEzWI6sIlIQ2Y0FjAX6" },                
+                { t: "Episodio 51", id: "1xsHeSpFFJGoLpYd9dGoyLVpaTf-yZPuB" }            
+            ]        
+        },        
+        {            
+            nombre: "Fullmetal Alchemist Brotherhood",            
+            tmdb_id: "31911",            
+            trailer: "Fullmetal Alchemist Brotherhood - Fullmetal Alchemist Brotherhood The Complete Series Part 1 IMDb.mp4",            
+            videos: [                
+                { t: "Episodio 1", id: "1vRHpcla98upz1lP5ln6pCgHjpRReBkZR" },                
+                { t: "Episodio 2", id: "132AzY3BoIlE54AQATnXQatMbf7-iypv5" },                
+                { t: "Episodio 3", id: "1KWCCMLO-HB_VfXrltu2Mi2MJjFViQE3j" },                
+                { t: "Episodio 4", id: "1G3a0pKbb3zrNZsZ7rjvLaIHI_1QU4ACX" },                
+                { t: "Episodio 5", id: "1ydNyo9Wy1OGzNpP1T-yuepqdkJpnM8fx" },                
+                { t: "Episodio 6", id: "1ASyOF8dz5jr4PAYZSfw-EsiWzmSDP0tT" },                
+                { t: "Episodio 7", id: "1ploQvr9OW7bzF3GxhlBekzuHtcp9dpjT" },                
+                { t: "Episodio 8", id: "1ScPT1p_CYso37qRKZANnOzgiR740d7-6" },                
+                { t: "Episodio 9", id: "1To_u9aNYcsnedL8Ey9a8HYOoHxfvy3g1" },                
+                { t: "Episodio 10", id: "19ZNB7vDHo-LDwbJhQfEzfgzda_lpm44V" },                
+                { t: "Episodio 11", id: "1ifWN0_emoPQEa3DA2q0XjyZyEd0S3Ltx" },                
+                { t: "Episodio 12", id: "1UREjykA2MwhYgMhBpTIb1nOiOsepRPOf" },                
+                { t: "Episodio 13", id: "1VNJ25pLC9VJ1rv72xj0bQ95VAfx9G0lC" },                
+                { t: "Episodio 14", id: "1wUopf5KassfqijzEQd2ukvhFKKruxNOv" },                
+                { t: "Episodio 15", id: "1oD245OHXhXx-3sa-LHVU4i4oBp2bKPAB" },                
+                { t: "Episodio 16", id: "1d648XyzIoMXaBWqnQVPU5l0DzMXujsFW" },                
+                { t: "Episodio 17", id: "1iNxsMdiS4UbrrpAvhaqOZp_pXgDMcg7m" },                
+                { t: "Episodio 18", id: "1ORXml3H1-Iu0XNc9i11EXALREd178cM2" },                
+                { t: "Episodio 19", id: "1kp5j3NKvfx0hclivrneYeU6ZHZfv9VkM" },                
+                { t: "Episodio 20", id: "" }, { t: "Episodio 21", id: "" }, { t: "Episodio 22", id: "" },                
+                { t: "Episodio 23", id: "" }, { t: "Episodio 24", id: "" }, { t: "Episodio 25", id: "" },                
+                { t: "Episodio 26", id: "" }, { t: "Episodio 27", id: "" }, { t: "Episodio 28", id: "" },                
+                { t: "Episodio 29", id: "" }, { t: "Episodio 30", id: "" }, { t: "Episodio 31", id: "" },                
+                { t: "Episodio 32", id: "" }, { t: "Episodio 33", id: "" }, { t: "Episodio 34", id: "" },                
+                { t: "Episodio 35", id: "" }, { t: "Episodio 36", id: "" }, { t: "Episodio 37", id: "" },                
+                { t: "Episodio 38", id: "" }, { t: "Episodio 39", id: "" }, { t: "Episodio 40", id: "" },                
+                { t: "Episodio 41", id: "" }, { t: "Episodio 42", id: "" }, { t: "Episodio 43", id: "" },                
+                { t: "Episodio 44", id: "" }, { t: "Episodio 45", id: "" }, { t: "Episodio 46", id: "" },                
+                { t: "Episodio 47", id: "" }, { t: "Episodio 48", id: "" }, { t: "Episodio 49", id: "" },                
+                { t: "Episodio 50", id: "" }, { t: "Episodio 51", id: "" }, { t: "Episodio 52", id: "" },                
+                { t: "Episodio 53", id: "" }, { t: "Episodio 54", id: "" }, { t: "Episodio 55", id: "" },                
+                { t: "Episodio 56", id: "" }, { t: "Episodio 57", id: "" }, { t: "Episodio 58", id: "" },                
+                { t: "Episodio 59", id: "" }, { t: "Episodio 60", id: "" }, { t: "Episodio 61", id: "" },                
+                { t: "Episodio 62", id: "" }, { t: "Episodio 63", id: "" }, { t: "Episodio 64", id: "" }            
+            ]        
+        },        
+        {            
+            nombre: "Takopi's Original Sin",            
+            tmdb_id: "284445",            
+            trailer: "Takopis Original Sin  TRÁILER OFICIAL.mp4",            
+            videos: [                
+                { t: "Episodio 1", id: "1RR5z6SXOq7uSwvCKo1LfPflapjr2rQxu" },                
+                { t: "Episodio 2", id: "1WcVcGEHGU4EK3RuKO0nluuhHY6UaBbE2" },                
+                { t: "Episodio 3", id: "1vospWG72Q61QQa-7D-1mZmKSMtaT_BR0" },                
+                { t: "Episodio 4", id: "14BcmThMeEB1LMp37mTjGCfjq9nJESZ7F" },                
+                { t: "Episodio 5", id: "1xYX_rDyBwbn9NcHy0bo7SyyYb0HnmdhE" },                
+                { t: "Episodio 6", id: "1eI5YR4KXo9kLOtKVYP43l68MfI-Ym_uK" }            
+            ]        
+        }    
     ];
 
-    const PELICULAS = [
-        {
-            nombre: "Your Name",
-            tmdb_id: "372058",
-            trailer: "Your Name Trailer Español Latino.mp4",
-            videos: [{ t: "Película Completa", id: "1YZVGxDSWUv1Kgg1h9NPeHrXbNy9PhE-R" }]
-        },
-        {
-            nombre: "El jardín de las palabras",
-            tmdb_id: "198375",
-            trailer: "El jardín de las palabras Latino Trailer.mp4",
-            videos: [{ t: "Película Completa", id: "13SS37kLvxW_kO-BRc0ymBl3ncCbOL9BX" }]
-        },
-        {
-            nombre: "Perfect Blue",
-            tmdb_id: "10494",
-            trailer: "Perfect Blue - Official Trailer IMDb.mp4",
-            videos: [{ t: "Película Completa", id: "1l7Qth1VPXlAeNB0YJtEFQyCLjyiPkrpO" }]
-        },
-        {
-            nombre: "El tiempo contigo",
-            tmdb_id: "568160",
-            trailer: "el tiempo contigo.mp4",
-            videos: [{ t: "Película Completa", id: "1cSbfnufT0COazFdCD3dWMWpdV6CkOGKO" }]
-        },
-         {
-            nombre: "Look Back",
-            tmdb_id: "1244492",
-            trailer: "LOOK BACK  Trailer with Spanish subtitles.mp4",
-            videos: [{ t: "Película Completa", id: "1tVz6z8YrwFazDxEWOft2cRbVdlC5jizu" }]
-        }
+    const PELICULAS = [        
+        {            
+            nombre: "Your Name",            
+            tmdb_id: "372058",            
+            trailer: "Your Name Trailer Español Latino.mp4",            
+            videos: [{ t: "Película Completa", id: "1YZVGxDSWUv1Kgg1h9NPeHrXbNy9PhE-R" }]        
+        },        
+        {            
+            nombre: "El jardín de las palabras",            
+            tmdb_id: "198375",            
+            trailer: "El jardín de las palabras Latino Trailer.mp4",            
+            videos: [{ t: "Película Completa", id: "13SS37kLvxW_kO-BRc0ymBl3ncCbOL9BX" }]        
+        },        
+        {            
+            nombre: "Perfect Blue",            
+            tmdb_id: "10494",            
+            trailer: "Perfect Blue - Official Trailer IMDb.mp4",            
+            videos: [{ t: "Película Completa", id: "1l7Qth1VPXlAeNB0YJtEFQyCLjyiPkrpO" }]        
+        },        
+        {            
+            nombre: "El tiempo contigo",            
+            tmdb_id: "568160",            
+            trailer: "el tiempo contigo.mp4",            
+            videos: [{ t: "Película Completa", id: "1cSbfnufT0COazFdCD3dWMWpdV6CkOGKO" }]        
+        },         
+        {            
+            nombre: "Look Back",            
+            tmdb_id: "1244492",            
+            trailer: "LOOK BACK  Trailer with Spanish subtitles.mp4",            
+            videos: [{ t: "Película Completa", id: "1tVz6z8YrwFazDxEWOft2cRbVdlC5jizu" }]        
+        }    
     ];
 
-    const ESPECIALES = [
-        {
-            nombre: "Made in Abyss (Peliculas)",
-            tmdb_id: "72636",
-            trailer: "MADE IN ABYSS Official Trailer.mp4",
-            videos: [
-                { t: "El amanecer del viaje", id: "16VH8jebkRolYS2yBCm5owN80orWU11NA" },
-                { t: "El crepúsculo errante", id: "1fb_mmNZUSHsg1xYXE6X1OdtQFyDwtHwT" },
-                { t: "El amanecer del alma profunda", id: "1fBBOaL9Yo0RqUi9FLRjNIU5vegMnxggI" }
-            ]
-        }
+    const ESPECIALES = [        
+        {            
+            nombre: "Made in Abyss (Peliculas)",            
+            tmdb_id: "72636",            
+            trailer: "MADE IN ABYSS Official Trailer.mp4",            
+            videos: [                
+                { t: "El amanecer del viaje", id: "16VH8jebkRolYS2yBCm5owN80orWU11NA" },                
+                { t: "El crepúsculo errante", id: "1fb_mmNZUSHsg1xYXE6X1OdtQFyDwtHwT" },                
+                { t: "El amanecer del alma profunda", id: "1fBBOaL9Yo0RqUi9FLRjNIU5vegMnxggI" }            
+            ]        
+        }    
     ];
-
-    const DATABASE = [...SERIES, ...PELICULAS, ...ESPECIALES];
-    let seleccionado = null;
-
-    function abrirPasos() { document.getElementById('pantalla-pasos').style.display = 'block'; }
-    function cerrarPasos() { document.getElementById('pantalla-pasos').style.display = 'none'; }
 
     async function cargar() {
         const cat = document.getElementById('catalogo');
-        cat.innerHTML = ''; 
-        for (let item of DATABASE) {
-            const tipo = PELICULAS.some(p => p.nombre === item.nombre) ? "movie" : "tv";
-            const res = await fetch(`https://api.themoviedb.org/3/${tipo}/${item.tmdb_id}?api_key=${API_KEY}&language=es-ES`);
+        const searchCat = document.getElementById('resultados-busqueda');
+        const allItems = [...SERIES, ...PELICULAS, ...ESPECIALES];
+
+        for (const item of allItems) {
+            const esPeli = PELICULAS.some(p => p.nombre === item.nombre);
+            const res = await fetch(`https://api.themoviedb.org/3/${esPeli ? 'movie' : 'tv'}/${item.tmdb_id}?api_key=${API_KEY}&language=es-ES`);
             const data = await res.json();
-            let etiqueta = ESPECIALES.some(e => e.nombre === item.nombre) ? "3 PARTES" : PELICULAS.some(p => p.nombre === item.nombre) ? "1 PELÍCULA" : `${item.videos.length} EPISODIOS`;
+            
             const card = document.createElement('div');
-            card.className = 'card-container';
-            card.innerHTML = `<div class="card"><img src="https://image.tmdb.org/t/p/w500${data.poster_path}"><div class="card-body"><b>${etiqueta}</b><p>${item.nombre}</p></div></div>`;
-            card.onclick = () => verInfo(item, data);
+            card.className = 'card';
+            card.innerHTML = `<img src="https://image.tmdb.org/t/p/w500${data.poster_path}">`;
+            card.onclick = () => abrirInfo(item, data);
             cat.appendChild(card);
+
+            const cloneCard = card.cloneNode(true);
+            cloneCard.setAttribute('data-name', item.nombre.toLowerCase());
+            cloneCard.onclick = () => { cerrarBuscador(); abrirInfo(item, data); };
+            searchCat.appendChild(cloneCard);
         }
     }
 
-    function verInfo(item, data) {
-        seleccionado = item;
-        const v = document.getElementById('hero-video');
-        document.getElementById('pantalla-info').style.display = 'block';
-        document.getElementById('info-titulo').innerText = item.nombre;
-        document.getElementById('info-desc').innerText = data.overview;
-        const anio = (data.release_date || data.first_air_date || "").substring(0, 4);
-        const generos = data.genres ? data.genres.slice(0, 3).map(g => g.name).join(' • ') : "Anime";
-        document.getElementById('info-meta').innerText = `${anio} | ${generos}`;
-        v.src = item.trailer; v.muted = false; v.play().catch(() => { v.muted = true; v.play(); });
-        const lista = document.getElementById('lista-episodios-info');
-        lista.innerHTML = '';
-        item.videos.forEach((v, i) => {
-            const div = document.createElement('div');
-            div.className = 'ep-card';
-            div.innerHTML = `<span>${v.t}</span> <span>VER ▶</span>`;
-            div.onclick = () => abrirPlayer(i);
-            lista.appendChild(div);
+    function abrirInfo(item, data) {
+        document.getElementById('modal-titulo').innerText = "";
+        document.getElementById('modal-desc').innerText = "";
+        document.getElementById('modal-meta').innerText = "";
+        document.getElementById('modal-list').innerHTML = "";
+        document.getElementById('modal-vid').src = "";
+
+        document.getElementById('hero-vid').pause();
+        document.getElementById('info-overlay').style.display = 'block';
+        const modalVid = document.getElementById('modal-vid');
+        modalVid.src = item.trailer;
+        modalVid.muted = false;
+
+        document.getElementById('modal-titulo').innerText = item.nombre.replace(" (Peliculas)", "");
+        document.getElementById('modal-desc').innerText = data.overview;
+        
+        const año = (data.release_date || data.first_air_date || "2024").split('-')[0];
+        const categorias = data.genres.map(g => g.name).join(' • ');
+        document.getElementById('modal-meta').innerText = `${año} | ${categorias}`;
+        
+        const esSerie = SERIES.some(s => s.nombre === item.nombre);
+        const esEspecialAbyss = item.nombre.includes("Made in Abyss");
+        
+        let labelText = "Contenido";
+        if (esEspecialAbyss) labelText = "Partes";
+        else if (esSerie) labelText = "Episodios";
+        
+        document.getElementById('label-lista').innerText = labelText;
+        
+        const list = document.getElementById('modal-list');
+        const pMenuList = document.getElementById('player-menu-list');
+        pMenuList.innerHTML = ""; 
+
+        item.videos.forEach(vid => {
+            const row = document.createElement('div');
+            row.className = 'ep-card';
+            row.innerHTML = `<span>${vid.t}</span><span style="color:var(--accent)">▶</span>`;
+            row.onclick = () => reproducir(vid.id);
+            list.appendChild(row);
+
+            const pRow = document.createElement('div');
+            pRow.className = 'player-menu-item';
+            pRow.innerText = vid.t;
+            pRow.onclick = () => { reproducir(vid.id); togglePlayerMenu(); };
+            pMenuList.appendChild(pRow);
         });
+        
+        document.getElementById('btn-play-info').onclick = () => reproducir(item.videos[0].id);
     }
 
-   function abrirPlayer(idx) {
-    const hV = document.getElementById('hero-video');
-    if(hV) { hV.pause(); hV.muted = true; }
-    document.getElementById('pantalla-player').style.display = 'block';
-    reproducir(idx);
-}
+    function reproducir(id) {
+        // VALIDACIÓN: Evitar pantalla negra si el episodio aún no tiene ID en la base de datos
+        if (!id || id.trim() === "") {
+            alert("Este episodio no está disponible por el momento.");
+            return;
+        }
 
-    function reproducir(idx) {
-        const vid = seleccionado.videos[idx];
-        document.getElementById('main-iframe').src = `https://drive.google.com/file/d/${vid.id}/preview`;
-        const listaPlayer = document.getElementById('lista-eps-player');
-        listaPlayer.innerHTML = '';
-        seleccionado.videos.forEach((v, i) => {
-            const div = document.createElement('div');
-            div.className = `ep-item ${i === idx ? 'active' : ''}`;
-            div.innerText = v.t;
-            div.onclick = () => { reproducir(i); toggleEps(); };
-            listaPlayer.appendChild(div);
-        });
+        document.getElementById('player-full').style.display = 'block';
+        document.getElementById('main-iframe').src = `https://drive.google.com/file/d/${id}/preview`;
+        document.getElementById('modal-vid').pause();
     }
 
-    function toggleEps() { 
-        const m = document.getElementById('menu-episodios'); 
-        m.style.display = m.style.display === 'block' ? 'none' : 'block'; 
+    function togglePlayerMenu() {
+        const menu = document.getElementById('player-menu-list');
+        menu.style.display = menu.style.display === 'block' ? 'none' : 'block';
     }
 
     function cerrarInfo() { 
-        const v = document.getElementById('hero-video');
-        document.getElementById('pantalla-info').style.display = 'none'; 
-        v.pause(); v.src = ""; v.muted = true;
+        document.getElementById('info-overlay').style.display = 'none'; 
+        document.getElementById('modal-vid').src=''; 
+        document.getElementById('hero-vid').play(); 
     }
 
     function cerrarPlayer() { 
-        document.getElementById('pantalla-player').style.display = 'none'; 
-        document.getElementById('main-iframe').src = ''; 
-        const v = document.getElementById('hero-video');
-        if(v) { v.muted = false; v.play().catch(() => { v.muted = true; v.play(); }); }
+        document.getElementById('player-full').style.display = 'none'; 
+        document.getElementById('player-menu-list').style.display = 'none';
+        document.getElementById('main-iframe').src=''; 
+        
+        if(document.getElementById('info-overlay').style.display === 'block') {
+            const v = document.getElementById('modal-vid');
+            v.play().catch(() => { v.muted = true; v.play(); });
+        } else {
+            const v = document.getElementById('hero-vid');
+            v.play().catch(() => { v.muted = true; v.play(); });
+        }
     }
 
-    function filtrar() {
-        const q = document.querySelector('.search-box').value.toLowerCase();
-        document.querySelectorAll('.card-container').forEach(c => {
-            c.style.display = c.innerText.toLowerCase().includes(q) ? 'block' : 'none';
+    function toggleHeroMute() {
+        const v = document.getElementById('hero-vid');
+        const b = document.getElementById('hero-mute-btn');
+        if (v.muted) {
+            v.volume = 0; 
+            v.muted = false;
+            setTimeout(() => { v.volume = 1; }, 50); 
+        } else {
+            v.muted = true;
+        }
+        b.innerText = v.muted ? '🔇' : '🔊';
+    }
+
+    function toggleMenu() {
+        document.getElementById('sidebar').classList.toggle('active');
+        const overlay = document.querySelector('.sidebar-overlay');
+        overlay.style.display = overlay.style.display === 'block' ? 'none' : 'block';
+    }
+
+    function abrirBuscador() {
+        document.getElementById('sidebar').classList.remove('active');
+        document.querySelector('.sidebar-overlay').style.display = 'none';
+        document.getElementById('search-page').style.display = 'block';
+        document.body.style.overflow = 'hidden';
+    }
+
+    function cerrarBuscador() {
+        document.getElementById('search-page').style.display = 'none';
+        document.body.style.overflow = 'auto';
+    }
+
+    function filtrarBuscador() {
+        const q = document.getElementById('finder').value.toLowerCase();
+        document.querySelectorAll('#resultados-busqueda .card').forEach(c => {
+            c.style.display = c.getAttribute('data-name').includes(q) ? 'block' : 'none';
         });
     }
+
+    function abrirAdv() { document.getElementById('modal-adv').style.display = 'flex'; }
+    function cerrarAdv() { document.getElementById('modal-adv').style.display = 'none'; }
+
     cargar();
 </script>
 </body>
 </html>
-
-
