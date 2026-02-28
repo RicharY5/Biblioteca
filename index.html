@@ -524,11 +524,15 @@
         document.querySelector('.sidebar-overlay').style.display = 'none';
         document.getElementById('search-page').style.display = 'block';
         document.body.style.overflow = 'hidden';
+        document.getElementById('hero-vid').pause();
     }
 
     function cerrarBuscador() {
         document.getElementById('search-page').style.display = 'none';
         document.body.style.overflow = 'auto';
+        if(document.getElementById('info-overlay').style.display !== 'block') {
+    document.getElementById('hero-vid').play();
+}
     }
 
     function filtrarBuscador() {
@@ -545,6 +549,7 @@
 </script>
 </body>
 </html>
+
 
 
 
