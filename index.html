@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-    <title>Nexos</title>
+    <title>Aura Stream</title>
     <style>
         :root { --accent: #a855f7; --bg: #000; }
         * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; margin: 0; padding: 0; }
@@ -33,7 +33,7 @@
         .sidebar-menu { padding: 20px; display: flex; flex-direction: column; gap: 10px; }
         .menu-item { background: transparent; color: #ccc; border: none; font-size: 16px; text-align: left; padding: 15px; border-radius: 8px; cursor: pointer; display: flex; align-items: center; gap: 15px; font-weight: bold; }
 
-        /* --- BUSCADOR ORIGINAL --- */
+        /* --- BUSCADOR --- */
         #search-page { display: none; position: fixed; inset: 0; background: #000; z-index: 6000; overflow-y: auto; }
         .search-header { position: sticky; top: 0; background: rgba(0,0,0,0.95); backdrop-filter: blur(10px); padding: 15px 4%; display: flex; align-items: center; gap: 15px; border-bottom: 1px solid #222; z-index: 6100; }
         .search-input { flex-grow: 1; background: transparent; border: none; color: white; font-size: clamp(20px, 4vw, 28px); outline: none; padding: 10px 0; }
@@ -52,7 +52,7 @@
         
         .mute-toggle-hero { position: absolute; right: 30px; bottom: 30px; z-index: 10; background: rgba(0,0,0,0.5); border: 1px solid white; color: white; width: 40px; height: 40px; border-radius: 50%; cursor: pointer; display: flex; align-items: center; justify-content: center; }
 
-        /* --- PORTADAS CON SOMBRA --- */
+        /* --- PORTADAS --- */
         .contenedor { display: grid; padding: 20px 4% 100px; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 15px; }
         @media (max-width: 600px) { .contenedor { grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); } }
         .card { position: relative; aspect-ratio: 2/3; border-radius: 8px; overflow: hidden; cursor: pointer; transition: transform 0.3s; box-shadow: 0 4px 10px rgba(0,0,0,0.5); }
@@ -79,24 +79,33 @@
         .video-container { position: absolute; inset: 0; z-index: 1; display: flex; justify-content: center; align-items: center; }
         #main-iframe { width: 100%; height: 100%; border: none; max-width: 100vw; max-height: 100dvh; }
         
-        .p-btn-top { position: absolute; top: 20px; z-index: 11000; background: rgba(0,0,0,0.6); color: white; border: 1px solid #444; padding: 10px 20px; border-radius: 5px; cursor: pointer; }
+        /* Botón Salir (transparente) */
+        .p-btn-top { position: absolute; top: 20px; z-index: 11000; background: rgba(255,255,255,0.1); color: white; border: 1px solid #444; padding: 10px 20px; border-radius: 5px; cursor: pointer; font-weight: bold; }
         
-        /* Botón Lista y Menú Flotante del Player (Movidos al centro) */
+        /* Botón Lista y Menú Flotante del Player */
         .player-controls { position: absolute; top: 20px; right: 85px; z-index: 11000; display: flex; gap: 10px; }
         .btn-lista { background: rgba(255,255,255,0.1); border: 1px solid #444; color: white; padding: 10px 20px; border-radius: 5px; cursor: pointer; font-weight: bold; }
         
+        /* Menú de episodios (transparente) */
         #player-menu-list { 
             display: none; position: absolute; top: 75px; right: 85px; width: 280px; 
-            background: rgba(0,0,0,0.9); border: 2.5px solid var(--accent); border-radius: 15px; 
+            background: rgba(255,255,255,0.1); border: 1px solid #444; border-radius: 5px; backdrop-filter: blur(10px);
             z-index: 11001; padding: 15px; max-height: 70vh; overflow-y: auto; 
         }
         .player-menu-item { padding: 15px; border-bottom: 1px solid #222; cursor: pointer; color: white; font-size: 15px; }
 
-        /* --- ADVERTENCIA ORIGINAL --- */
+        /* --- ADVERTENCIA --- */
         .modal-adv { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.95); z-index: 9999; align-items: center; justify-content: center; padding: 20px; }
         .adv-content { background: #111; border: 1px solid #333; padding: 30px; border-radius: 15px; width: 100%; max-width: 450px; text-align: center; }
         .step { background: #1a1a1a; padding: 15px; border-radius: 10px; margin: 10px 0; text-align: left; display: flex; align-items: center; border: 1px solid #333; font-size: 14px; }
         .step-num { color: var(--accent); font-weight: 900; font-size: 18px; margin-right: 15px; }
+
+        /* --- AJUSTE DE PREVISUALIZACIONES PARA TELÉFONO --- */
+        @media (max-width: 768px) {
+            .hero { height: 40vh; }
+            .info-video-bg { height: 40vh; }
+            .info-details { margin-top: 25vh; }
+        }
     </style>
 </head>
 
@@ -106,7 +115,7 @@
 <div class="header">
     <div class="header-left">
         <button class="menu-icon" onclick="toggleMenu()">☰</button>
-        <div class="logo">Nexos<span></span></div>
+        <div class="logo">AURA<span>STREAM</span></div>
     </div>
     <button class="btn-adv" onclick="abrirAdv()">?</button>
 </div>
@@ -115,7 +124,7 @@
 
 <div class="sidebar" id="sidebar">
     <div class="sidebar-header" style="padding: 25px 20px; border-bottom: 1px solid #222; display: flex; justify-content: space-between; align-items: center;">
-        <div class="logo" style="font-size: 20px;">Nexos<span></span></div>
+        <div class="logo" style="font-size: 20px;">AURA<span>STREAM</span></div>
         <button class="menu-icon" style="font-size: 24px;" onclick="toggleMenu()">✕</button>
     </div>
     <div class="sidebar-menu">
@@ -190,7 +199,6 @@
 <script>
     const API_KEY = '6de1162b511f00bd38d39d7eb38396e9';
 
-    // DATOS ACTUALIZADOS SEGÚN LO SOLICITADO
     const SERIES = [        
         {            
             nombre: "Fullmetal Alchemist",            
@@ -274,21 +282,51 @@
                 { t: "Episodio 17", id: "1iNxsMdiS4UbrrpAvhaqOZp_pXgDMcg7m" },                
                 { t: "Episodio 18", id: "1ORXml3H1-Iu0XNc9i11EXALREd178cM2" },                
                 { t: "Episodio 19", id: "1kp5j3NKvfx0hclivrneYeU6ZHZfv9VkM" },                
-                { t: "Episodio 20", id: "" }, { t: "Episodio 21", id: "" }, { t: "Episodio 22", id: "" },                
-                { t: "Episodio 23", id: "" }, { t: "Episodio 24", id: "" }, { t: "Episodio 25", id: "" },                
-                { t: "Episodio 26", id: "" }, { t: "Episodio 27", id: "" }, { t: "Episodio 28", id: "" },                
-                { t: "Episodio 29", id: "" }, { t: "Episodio 30", id: "" }, { t: "Episodio 31", id: "" },                
-                { t: "Episodio 32", id: "" }, { t: "Episodio 33", id: "" }, { t: "Episodio 34", id: "" },                
-                { t: "Episodio 35", id: "" }, { t: "Episodio 36", id: "" }, { t: "Episodio 37", id: "" },                
-                { t: "Episodio 38", id: "" }, { t: "Episodio 39", id: "" }, { t: "Episodio 40", id: "" },                
-                { t: "Episodio 41", id: "" }, { t: "Episodio 42", id: "" }, { t: "Episodio 43", id: "" },                
-                { t: "Episodio 44", id: "" }, { t: "Episodio 45", id: "" }, { t: "Episodio 46", id: "" },                
-                { t: "Episodio 47", id: "" }, { t: "Episodio 48", id: "" }, { t: "Episodio 49", id: "" },                
-                { t: "Episodio 50", id: "" }, { t: "Episodio 51", id: "" }, { t: "Episodio 52", id: "" },                
-                { t: "Episodio 53", id: "" }, { t: "Episodio 54", id: "" }, { t: "Episodio 55", id: "" },                
-                { t: "Episodio 56", id: "" }, { t: "Episodio 57", id: "" }, { t: "Episodio 58", id: "" },                
-                { t: "Episodio 59", id: "" }, { t: "Episodio 60", id: "" }, { t: "Episodio 61", id: "" },                
-                { t: "Episodio 62", id: "" }, { t: "Episodio 63", id: "" }, { t: "Episodio 64", id: "" }            
+                { t: "Episodio 20", id: "" }, 
+                { t: "Episodio 21", id: "" }, 
+                { t: "Episodio 22", id: "" },                
+                { t: "Episodio 23", id: "" }, 
+                { t: "Episodio 24", id: "" }, 
+                { t: "Episodio 25", id: "" },                
+                { t: "Episodio 26", id: "" }, 
+                { t: "Episodio 27", id: "" }, 
+                { t: "Episodio 28", id: "" },                
+                { t: "Episodio 29", id: "" }, 
+                { t: "Episodio 30", id: "" }, 
+                { t: "Episodio 31", id: "" },                
+                { t: "Episodio 32", id: "" }, 
+                { t: "Episodio 33", id: "" }, 
+                { t: "Episodio 34", id: "" },                
+                { t: "Episodio 35", id: "" }, 
+                { t: "Episodio 36", id: "" }, 
+                { t: "Episodio 37", id: "" },                
+                { t: "Episodio 38", id: "" }, 
+                { t: "Episodio 39", id: "" }, 
+                { t: "Episodio 40", id: "" },                
+                { t: "Episodio 41", id: "" }, 
+                { t: "Episodio 42", id: "" }, 
+                { t: "Episodio 43", id: "" },                
+                { t: "Episodio 44", id: "" }, 
+                { t: "Episodio 45", id: "" },
+                { t: "Episodio 46", id: "" },                
+                { t: "Episodio 47", id: "" }, 
+                { t: "Episodio 48", id: "" }, 
+                { t: "Episodio 49", id: "" },                
+                { t: "Episodio 50", id: "" }, 
+                { t: "Episodio 51", id: "" }, 
+                { t: "Episodio 52", id: "" },                
+                { t: "Episodio 53", id: "" }, 
+                { t: "Episodio 54", id: "" }, 
+                { t: "Episodio 55", id: "" },                
+                { t: "Episodio 56", id: "" }, 
+                { t: "Episodio 57", id: "" }, 
+                { t: "Episodio 58", id: "" },                
+                { t: "Episodio 59", id: "" }, 
+                { t: "Episodio 60", id: "" }, 
+                { t: "Episodio 61", id: "" },                
+                { t: "Episodio 62", id: "" }, 
+                { t: "Episodio 63", id: "" }, 
+                { t: "Episodio 64", id: "" }            
             ]        
         },        
         {            
@@ -507,4 +545,3 @@
 </script>
 </body>
 </html>
-
